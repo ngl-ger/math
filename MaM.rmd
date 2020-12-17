@@ -17,19 +17,19 @@ Close to experimental Site (53°21'58.5"N|13°48'13.3"E). Data extracted from we
 ```{r Climate Data}
 
 #Read data as tibble (tidyverse)
-climate <- 
-  read_delim("C:/Users/jjohn/OneDrive/MScthesis/data/clim.csv",";",) %>%
-  filter (date != 0)#deletes empty days (artifact from data mining)
-
-climate$date <- as.Date(climate$date,"%d.%m.%Y") #formats the date correct 
+  climate <- 
+    read_delim("C:/Users/jjohn/OneDrive/MScthesis/data/clim.csv",";",) %>%
+    filter (date != 0)#deletes empty days (artifact from data mining)
+  
+  climate$date <- as.Date(climate$date,"%d.%m.%Y") #formats the date correct 
 
 #Summary statistics as we have day data, condense to month 
-summary <- climate %>%
-  mutate(month = format(date,"%m"), year = format (date, "%y"))%>% #new month and year var
-  group_by(id, month, year)%>%                                    #group by new vars
-  summarise(
-    avg = mean(value) #mean it 
-  )
+  summary <- climate %>%
+    mutate(month = format(date,"%m"), year = format (date, "%y"))%>% #new month and year var
+    group_by(id, month, year)%>%                                    #group by new vars
+    summarise(
+      avg = mean(value) #mean it 
+    )
 
 # Plotting the weather data 
 
@@ -38,20 +38,66 @@ summary <- climate %>%
   summary$time <- 
     lubridate::ymd(paste0(summary$year,summary$month,"01"))#reintroducing date format for ggplot2
 
-  # Coloring for aes 
-  my_color <- c ("deepskyblue1", "yellow", "black", "red", "dodgerblue4") 
+# consistent coloring scheme
+  my_color <- c ("deepskyblue1", "goldenrod1", "black", "red", "dodgerblue4") 
   names(my_color) <- levels(summary$id)
-  my_scale <- scale_fill_manual(name = "Group", values = my_color)  
+  my_scale <- scale_color_manual(name = "Legend", 
+                                 values = my_color,
+                                 breaks=c("temp_max","temp_avg", "temp_min"),
+                                 labels=c("Maximum", "Average", "Minimum"))  
   
-  temp <- filter(summary, id =="temp_max" |id =="temp_min" | id=="temp_avg") #filtering temperature data so they can be plotted in one plot 
+# filtering data for separate plots
+  
+  temp <- filter(summary, id =="temp_max" |id =="temp_min" | id=="temp_avg") 
+  sun <- filter(summary,id =="sunshine")
+  rain<- filter(summary,id=="rainfall")
+  
 
-a <- ggplot(temp, aes(time,avg,group=id)) +
-  geom_line() +
-  scale_fill_manual(values=grp.clrs)+
-  #scale_color_manual(values = my_colour) +
-  NULL
-a
+# ggplot area
+  #temperature
+  temp$title <- "Temperature"
+  a <- ggplot(temp, aes(time,avg,color=id)) +
+    geom_line() +
+    ylab("°C")+
+    xlab("2019-2020")+
+    facet_grid(~title)+
+    NULL 
+  plot_temp <- a + my_scale
   
+  #rainfall, sunshine
+  rain$title <- "Rainfall" 
+  b <- ggplot(rain, aes(time,avg, color=id)) +
+    geom_line() +
+    ylab(expression(paste("L/m"^"2")))+
+    xlab("2019-2020")+
+    facet_grid(~title)+
+    NULL 
+  plot_rain <- b + my_scale
+
+  sun$title <- "Sunshine"
+  c <- ggplot(sun, aes(time,avg,color=id)) +
+    geom_line() +
+    ylab("Hours")+
+    xlab("2019-2020")+
+    facet_grid(~title)+
+    NULL
+  plot_sun <- c + my_scale
+    
+
+#cowplot to arrange 
+  #Plotting two plots together
+  plot_other<- plot_grid(plot_rain + theme(legend.position="none"),
+                         plot_sun + theme(legend.position="none")
+                         ,labels = c('B', 'C'))
+  # so they can be in one row 
+  prow <- plot_grid(plot_temp,
+            plot_other,
+            labels = c('A', ''),
+            ncol = 1, nrow = 2)
+  prow
+  
+  legend <- get_legend(
+ 
 
 
 ```
