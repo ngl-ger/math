@@ -99,6 +99,7 @@ library(nlme)
   
   genecopy <- fin %>% 
    inner_join(trt, by = c("id" = "id"))
+  genecopy
   
   rm(trt)
   rm(fin)
@@ -114,11 +115,13 @@ The data preparation is finished for the 16s rRNA gene copy data. We have worked
 
 Now we move on to the statistical modelling and checking for significance.
 
-# Statistical modelling and sig. testing
+# Statistical modelling and sig. testing {.tabset .tabset-fade .tabset-pills}
 
 ## Rhizo
 
-```{r rhizo 16s inference statistics, echo=TRUE}
+### Checking data balance
+
+```{r rhizo 16s group means and see if data is balanced, echo=FALSE}
 # Needs the genecopy file from the 16S data mangling qPCR chunk 
 # Following the instructions of        
   # https://www.datanovia.com/en/lessons/repeated-measures-anova-in-r/
