@@ -1,0 +1,446 @@
+---
+title: "AOB  analysis"
+author: "Joshua Johnson"
+output:
+  html_document:
+    df_print: paged
+---
+
+# Packages, data loading etc. 
+
+```{r Packages, echo=TRUE, results='hide', warning=FALSE, message = FALSE}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(cowplot)
+library(reshape2)
+library(rstatix)
+library(ggpubr)
+library(nlme)
+```
+
+
+```{r  qPCR load, echo=FALSE, results='hide', warning=FALSE, message = FALSE}
+
+# Loading bay
+
+  # qPCR data
+
+   qpcr <- 
+      read_delim("C:/Users/jjohn/OneDrive/MScthesis/data/aob.csv",",",)
+
+  # DNA concentration
+
+    dna <- 
+      read_delim("C:/Users/jjohn/OneDrive/MScthesis/data/dna.csv",",",)
+    
+    trt <-
+      read_delim("C:/Users/jjohn/OneDrive/MScthesis/data/treatment_factors.csv",",",) 
+     
+    
+  # Variable type changes 
+    
+    qpcr$id <- as.factor(qpcr$id)
+    dna$id <- as.factor(dna$id)
+    
+    trt <- trt %>%
+      convert_as_factor(id,fert,fung,block,time,row)
+    
+    
+```    
+
+# Basic statistics and data mangling   
+```{r sum stats and normalization , echo=FALSE, warning=FALSE, message = FALSE}
+# Summary statistics
+
+ summary <- qpcr %>%
+    group_by(type, id)%>%                                    
+    summarise(
+      n=n(),
+      avg.qty = mean(qty, na.rm=TRUE),
+      sd.qty=sd(qty, na.rm = TRUE) 
+    )%>% 
+    ungroup()
+ summary
+ rm(qpcr)
+ 
+# Join DNA conc. and summary qty for later calculations  
+ 
+ joined <- summary %>% 
+   inner_join(dna, by = c("id" = "id", "type" = "type"))%>% 
+   rename(dna_conc= value)
+ rm(summary)
+ rm(dna)
+ 
+#Normalize quantity values
+  
+  # Reset dilution
+  # Normalize on 1 ul (8 ul template used in one well)
+  # Normalize on 1 ng DNA (divide by DNA conc. per ng)
+  # Index created: averaged quantity value (from technical replicates) for each replicate
+ 
+   calc <- joined %>%
+     mutate(qty_undil=avg.qty*20)%>% 
+     mutate(qty_ul=qty_undil/8)%>% 
+     mutate(qty_ng=qty_ul/dna_conc)
+   calc
+   
+   index <- calc  %>% 
+    inner_join(trt, by = c("id" = "id"))%>%
+    arrange(type, treatment)
+    
+   
+   rm(joined)
+   
+  # From calc we extract the calculated values into a new tibble and remove calc 
+    # There are other columns in calc which contain unwanted information, hence the new tibble
+    # You could also set the unwanted columns to NULL and work further with calc 
+   
+  fin <- calc %>% 
+     select(type,id, qty_ng) %>% 
+     mutate(unit = "GeneCopies/ngDNA")
+  rm(calc)
+  
+  # Add descriptors (another table) for treatment factors
+  
+  genecopy <- fin %>% 
+   inner_join(trt, by = c("id" = "id"))
+  genecopy
+  
+  rm(trt)
+  rm(fin)
+  
+  
+# Finished, we now have a tibble called 'genecopy' which includes the gene copy numbers per ng DNA
+  # Index is a copy of all average qty values (avg of technical replicates) for each replicate and is normalized on ng DNA
+
+
+```
+
+The data preparation is finished for the AOB gene copy data. We have worked with the raw quantity values used qPCR machine (standardized on the individual runs standard curve), did summary statistics (averaging the technical replicates) and calculated gene copy number per nanogram DNA. 
+
+Now we move on to the statistical modelling and checking for significance.
+
+# Statistical modelling and sig. testing {.tabset .tabset-fade .tabset-pills}
+
+## Rhizo
+
+### Checking data balance
+
+```{r rhizo AOB group means and see if data is balanced, echo=FALSE}
+# Needs the genecopy file from the 16S data mangling qPCR chunk 
+# Following the instructions of        
+  # https://www.datanovia.com/en/lessons/repeated-measures-anova-in-r/
+  # http://coleoguy.github.io/teaching/expdes/lec8.pdf
+  # https://www.youtube.com/watch?v=i7tJwdZrklM&feature=youtu.be
+  
+# Start with analysis of rhizo
+  
+genecopy.work <- genecopy %>%
+  filter(type =="rhizo")%>%
+  ungroup()
+
+# Deleting columns that are not needed
+genecopy.work$unit <- NULL
+genecopy.work$treatment <- NULL
+genecopy.work$type <- NULL
+
+#Inference about dataset, see if ANOVA assumptions are met
+
+  #Summary statistics a to get a feel of our data 
+  genecopy.work %>%
+  group_by(fert, fung, time) %>%
+  get_summary_stats(qty_ng, type = "mean_sd")
+```
+
+We have an unbalanced dataset. One replicate in '[fert:no|fung:yes|time:t3]' [ID:320] did not produce a result . Moving on to a boxplot to visually inspect groups and look for outliers.
+
+```{r rhizo AOB boxplots, echo=FALSE}
+  bxp <- ggboxplot(
+    genecopy.work, x = "fert", y = "qty_ng",
+    color = "time", palette = "jco",
+    facet.by = "fung", short.panel.labs = FALSE
+  )
+  bxp+ggtitle("Rhizo: AOB gene copy numbers")
+```
+
+No visual outliers. 
+
+```{r rhizo AOB outliers, echo=FALSE}
+outlier <-  genecopy.work %>%
+    group_by(fert,fung, time) %>%
+    identify_outliers(qty_ng)
+  outlier
+```
+
+No outliers
+
+### Normality and heteroskedasticity
+
+```{r rhizo 16s normality test and qq plots, echo=TRUE}
+  # Normality test with all outliers (Shapiro Test)
+    
+  genecopy.work %>%
+    group_by(fert, fung, time) %>%
+    shapiro_test(qty_ng)
+
+# QQplots: Investigate heteroskedasticity visually 
+
+  # All datapoints combined
+   genecopy.work %>%
+    ggqqplot("qty_ng", ggtheme = theme_bw())
+   
+  # Grouped by treatments and timepoints
+   genecopy.work %>%
+    ggqqplot("qty_ng", ggtheme = theme_bw())+
+    facet_grid(fert + fung ~ time, labeller = "label_both")
+   
+# The deviation in [fert:no|fung:no|time:t3] is clearly visible, exclude the outlier [id: 355]
+  # [fert:yes|fung:yes|time:t2] shows also an outlier far away from the line, somewhere at 3e+05 [id:253]
+  # Repeat normality test with filter of outliers
+  # Heteroskedascticity not perfect but OK 
+```
+
+All p-values above 0.05. Shapiro Test is passed but the general QQPlots has a strong tail. But is alright, because we may have for some biological groups more extreme values.
+
+### ANOVA: choosing a  model 
+
+An analysis of the dataset structure is needed to find the right statistical model. The data was generated in a randomized complete block design (RCBD). 
+
+##### Model parameters {.tabset .tabset-fade .tabset-pills}
+
+###### Fixed effects 
+
+* Fertilizer (fert) (Binary variable (yes/no))
+* Fungicide and growth (fung) (Binary variable (yes/no))
+
+###### Random effects
+
+* Time 
+* Block
+* (Row)
+* (Could possibly include rainfall 3-7 days before sampling)
+
+
+#### Mixed effect model
+
+The model needs to account for the above listed fixed and random effects. The regular lm() function of R stats package will fit all variables as fixed effects if they are integrated into the forumlae. Therefore we need the package nlme which can account for random effects. Because we are using only two timepoints I will stick to a linear model. Generally, I'd consider a non-linear model if all timepoints would be in the analysis. We are investigating gene copy numbers which are directly correlated and have a causal relation ship with number of bacteria. Bacteria growth is better estimated with a logistic regression. 
+
+I'll do a stepwise modelling approach without the mathematic forumlae (will be done in the thesis tho).
+
+##### All main effects + Interaction (Full model)
+
+```{r rhizo AOB: mixed effect model  }
+# Fitting a linear mixed effect model to our genecopynumber dataset
+  # Treatment variables (fert|fung) are treated as fixed effects
+  # Time and Block are random effect variables (can't be replicated)
+  # We use the package nlme to effectively input random effect variables for our model
+  # Interaction of fert*fung must be tested, because we have two factorial experiment 
+  # It is also possible to just type in fert*fung as predictor variable, the package will fit also the main effects
+  # If more timepoints of this are used, a non-linear model would be better because bacteria growth is not linear
+  
+  fit.all <- lme(qty_ng ~ fert*fung,
+                  random = list(~1|block, ~1|time),
+                  data=genecopy.work)
+  summary(fit.all)
+```
+
+The interaction term is not significant, so I'm droping it from the model, leaving only the main effects in.
+
+##### Both main effects (Reduced model)
+
+```{r rhizo AOB: mixed effect model no interaction}  
+  fit.nointeraction <- lme(qty_ng ~ fert+fung,
+                  random = list(~1|block, ~1|time),
+                  data=genecopy.work)
+  summary(fit.nointeraction)
+```
+
+Fungicide is highly sig. while fertilizer is not sig. Dropping fert from the model.
+
+
+##### Only Fung as main effect
+
+```{r rhizo AOB: mixed effect model no interaction no fung} 
+  
+  fit.nofert <- lme(qty_ng ~ fung,
+                  random = list(~1|block,~1|time),
+                  data=genecopy.work)
+  summary(fit.nofert)
+```
+
+##### EXPERIMENTAL time as fixed
+```{r}
+fit.all <- lme(qty_ng ~ fert+fung,
+                  random = list(~1|block, ~1|time),
+                  data=genecopy.work)
+  summary(fit.all)
+```
+
+```{r rhizo AOB: mixed effect model no interaction no fung} 
+  
+  fit.nofung <- lme(qty_ng ~ fert,
+                  random = list(~1|block,~1|time),
+                  data=genecopy.work)
+  summary(fit.nofung)
+
+```
+Both main effects are non sign.
+
+
+
+
+## Soil 
+
+### Checking the datas balance 
+```{r soil 16s group means and see if data is balanced, echo=FALSE}
+# Needs the genecopy file from the 16S data mangling qPCR chunk 
+# Following the instructions of        
+  # https://www.datanovia.com/en/lessons/repeated-measures-anova-in-r/
+  # http://coleoguy.github.io/teaching/expdes/lec8.pdf
+  # https://www.youtube.com/watch?v=i7tJwdZrklM&feature=youtu.be
+  
+genecopy.work <- genecopy %>%
+  filter(type =="soil")%>%
+  ungroup()
+
+# Deleting columns that are not needed
+genecopy.work$unit <- NULL
+genecopy.work$treatment <- NULL
+genecopy.work$type <- NULL
+
+#Inference about dataset, see if ANOVA assumptions are met
+
+  #Summary statistics and boxplots, to get a feel of our data and check visually for outliers
+  genecopy.work %>%
+  group_by(fert, fung, time) %>%
+  get_summary_stats(qty_ng, type = "mean_sd")
+```
+
+We have a balanced dataset (n is the same for each group). Moving on to a boxplot to visually inspect groups and look for outliers.
+
+### Boxplot to inspect data visually
+
+```{r soil 16s boxplots, echo=FALSE}
+  bxp <- ggboxplot(
+    genecopy.work, x = "fert", y = "qty_ng",
+    color = "time", palette = "jco",
+    facet.by = "fung", short.panel.labs = FALSE
+  )
+  bxp + ggtitle("Soil: AOB gene copy numbers ")
+```  
+
+We have one outlier in '[fert:no|fung:no|time:t2]', and two in '[fert:yes|fung:yes|time:t3]'. The boxplot of [fert:no|fung:yes|time:t2] is very broad, which the SD of the previous table already predicted. Lets check the outliers.
+### Identifying the outliers.
+
+```{r soil AOB outliers, echo=TRUE}    
+  outlier <-  genecopy.work %>%
+    group_by(fert,fung, time) %>%
+    identify_outliers(qty_ng)
+  outlier
+```
+
+One outlier in '[fert:yes|fung:yes|time:t3]' is extreme. 
+
+> Values above Q3 + 1.5xIQR or below Q1 - 1.5xIQR are considered as outliers. Values above Q3 + 3xIQR or below Q1 - 3xIQR are considered as extreme points (or extreme outliers). 
+
+Lets check the groups datatable:
+
+
+###### Datatable from group [fert:yes|fung:yes|time:t3]
+```{r [fert:no|fung:no|time:t2], echo = FALSE}
+inspect<- genecopy.work %>%
+  filter(fert =="yes" & fung == "yes" & time == "t3")
+inspect
+rm(inspect)
+``` 
+372 is relatively low compared to the others, but subjectively is within range. So I'll keep it for the time being
+
+### Normality and heteroskedasticity
+
+```{r soil AOB normality test and qq plots, echo=FALSE}
+# Normality test with all outliers (Shapiro Test)
+  genecopy.work %>%
+    group_by(fert, fung, time) %>%
+    shapiro_test(qty_ng)
+
+# QQplots: Investigate heteroskedasticity visually 
+
+  # All datapoints combined
+   genecopy.work %>%
+    ggqqplot("qty_ng", ggtheme = theme_bw())
+   
+  # Grouped by treatments and timepoints
+   genecopy.work %>%
+    ggqqplot("qty_ng", ggtheme = theme_bw())+
+    facet_grid(fert + fung ~ time, labeller = "label_both")
+
+```
+
+All groups pass the normality test. QQplots look reasonably heteroskedastic. Has a bit of a tail, more extreme values. 
+
+
+### ANOVA: Choosing a model
+
+An analysis of the dataset structure is needed to find the right statistical model. The data was generated in a randomized complete block design (RCBD). 
+
+##### Model parameters {.tabset .tabset-fade .tabset-pills}
+
+###### Fixed effects 
+
+* Fertilizer (fert) (Binary variable (yes/no))
+* Fungicide and growth (fung) (Binary variable (yes/no))
+
+###### Random effects
+
+* Time 
+* Block
+* (Row)
+* (Could possibly include rainfall 3-7 days before sampling)
+
+
+#### Mixed effect model
+
+The model needs to account for the above listed fixed and random effects. The regular lm() function of R stats package will fit all variables as fixed effects if they are integrated into the forumlae. Therefore we need the package nlme which can account for random effects. Because we are using only two timepoints I will stick to a linear model. Generally, I'd consider a non-linear model if all timepoints would be in the analysis. We are investigating gene copy numbers which are directly correlated and have a causal relation ship with number of bacteria. Bacteria growth is better estimated with a logistic regression. 
+
+I'll do a stepwise modelling approach without the mathematic forumlae (will be done in the thesis tho).
+
+##### All main effects + Interaction (Full model)
+
+```{r soil AOB anova full model, echo = FALSE}
+# Fitting a linear mixed effect model to our genecopynumber dataset
+  # Treatment variables (fert|fung) are treated as fixed effects
+  # Time and Block are random effect variables (can't be replicated)
+  # We use the package nlme to effectively input random effect variables for our model
+  # Interaction of fert*fung must be tested, because we have two factorial experiment 
+  # It is also possible to just type in fert*fung as influencer variable, the package will fit also the main effects
+  # If more timepoints of this are used, a non-linear model would be better because bacteria growth is not linear
+  
+  fit.all <- lme(qty_ng ~ fert+fung+fert*fung,
+                  random = list(~1|block, ~1|time, ~1|row),
+                  data=genecopy.work)
+  summary(fit.all)
+  
+```
+Interaction is not sig. Dropping it from the model
+##### Reduced model (both main effects)
+
+```{r soil AOB anova reduced model(both main effects), echo = FALSE}
+  # The interaction term is not significant, so drop it from the model 
+  
+  fit.nointeraction <- lme(qty_ng ~ fert+fung,
+                  random = list(~1|block, ~1|time),
+                  data=genecopy.work)
+  summary(fit.nointeraction)
+```
+Fertilizer is highly significant. Fungicide is borderline significant. May be worth investigating.
+
+##### Reduced model 2 (only fert)
+
+```{r soil 16S anova reduced model(only fert), echo = FALSE}
+  
+  fit.nofung <- lme(qty_ng ~ fert,
+                  random = list(~1|block,~1|time),
+                  data=genecopy.work)
+  summary(fit.nofung)
+```
