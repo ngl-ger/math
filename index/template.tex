@@ -1,0 +1,211 @@
+%%%---PREAMBLE---%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[twoside,12pt,final]{ucthesis-CA2012}
+
+% fix for pandoc 1.14
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+%--- Packages ---------------------------------------------------------
+\usepackage[lofdepth,lotdepth,caption=false]{subfig}
+\usepackage{fancyhdr}
+\usepackage{amsmath, amssymb, graphicx}
+\usepackage{xspace}
+\usepackage{braket}
+\usepackage{color}
+\usepackage{setspace}
+\usepackage{fancyvrb}
+\usepackage{array}
+\usepackage{ifxetex,ifluatex}
+\usepackage{etoolbox}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{tabu}
+\usepackage{longtable}
+\usepackage{titlesec}
+%---New Definitions and Commands------------------------------------------------------
+
+\newtheorem{theorem}{Jibberish}
+
+\bibliography{references}
+
+\hyphenation{mar-gin-al-ia}
+
+% from uw_template.tex
+
+% commands and environments needed by pandoc snippets
+% extracted from the output of `pandoc -s`
+%% Make R markdown code chunks work
+
+\ifxetex
+  \usepackage{fontspec,xltxtra,xunicode}
+  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+\else
+  \ifluatex
+    \usepackage{fontspec}
+    \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+  \else
+    \usepackage[utf8]{inputenc}
+  \fi
+\fi
+\DefineShortVerb[commandchars=\\\{\}]{\|}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\newenvironment{Shaded}{}{}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{{#1}}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{{#1}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{{#1}}}
+\newcommand{\RegionMarkerTok}[1]{{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+\newcommand{\NormalTok}[1]{{#1}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newenvironment{cslreferences}%
+{\setlength{\parindent}{0pt}%
+\everypar{\setlength{\hangindent}{\cslhangindent}}\ignorespaces}%
+{\par}
+
+\ifxetex
+  \usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex,
+              colorlinks=true,
+              linkcolor=blue]{hyperref}
+\else
+  \usepackage[unicode=true,
+              colorlinks=true,
+              linkcolor=blue]{hyperref}
+\fi
+\hypersetup{breaklinks=true, pdfborder={0 0 0}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\setcounter{secnumdepth}{0}
+
+%---Set Margins ------------------------------------------------------
+\setlength\oddsidemargin{0.25 in} \setlength\evensidemargin{0.25 in} \setlength\textwidth{6.25 in} \setlength\textheight{8.50 in}
+\setlength\footskip{0.25 in} \setlength\topmargin{0 in} \setlength\headheight{0.25 in} \setlength\headsep{0.25 in}
+
+%%%---DOCUMENT---%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+%=== Preliminary Pages ============================================
+\begin{ucfrontmatter}
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % TITLE PAGE INFORMATION %
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \title{$title$}
+
+  \author{$author$}
+
+  \report{Dissertation} \degree{Doctor of Philosophy} \degreemonth{$degree_month$} \degreeyear{$degree_year$}
+  \defensemonth{$defense_month$}
+  \defenseyear{$defense_year$}
+
+  \chair{$chair$}  % this is your advisor
+  \othermemberA{$signature1$} % This is a member of your committee
+  \othermemberB{$signature2$} % This is a member of your committee
+  \othermemberC{$signature3$} % This is a member of your committee (if your department requires 4 members)
+  \numberofmembers{4} % should match the number of entries above (chair + othermembers)
+
+  \field{$program$}
+  \campus{$uc_campus$}
+	\maketitle
+	\approvalpage
+	\copyrightpage
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % DEDICATION PAGE INFORMATION %
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    \begin{dedication}
+
+      \vspace*{25ex}
+
+      \begin{center}
+      \begin{Large}
+
+        $dedication$
+
+      \end{Large}
+
+      \end{center}
+
+  \end{dedication}
+  \begin{acknowledgements}
+    $acknowledgments$
+  \end{acknowledgements}
+ 
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % ABSTRACT %
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \begin{abstract}
+    \addcontentsline{toc}{chapter}{Abstract}
+    %todo: max 350 words
+
+    $abstract$
+
+    %\abstractsignature
+  \end{abstract}
+	\tableofcontents
+
+	$if(lot)$
+  \listoftables
+  $endif$
+
+  $if(lof)$
+  \listoffigures
+  $endif$
+
+\end{ucfrontmatter}
+
+\begin{ucmainmatter}
+
+$body$
+
+\end{ucmainmatter}
+
+\end{document}
+
+
+%---Set Headers and Footers ------------------------------------------------------
+\pagestyle{fancy}
+\renewcommand{\chaptermark}[1]{\markboth{{\sf #1 \hspace*{\fill} Chapter~\thechapter}}{} }
+\renewcommand{\sectionmark}[1]{\markright{ {\sf Section~\thesection \hspace*{\fill} #1 }}}
+\fancyhf{}
+
+\makeatletter \if@twoside \fancyhead[LO]{\small \rightmark} \fancyhead[RE]{\small\leftmark} \else \fancyhead[LO]{\small\leftmark}
+\fancyhead[RE]{\small\rightmark} \fi
+
+\def\cleardoublepage{\clearpage\if@openright \ifodd\c@page\else
+  \hbox{}
+  \vspace*{\fill}
+  \begin{center}
+    This page intentionally left blank
+  \end{center}
+  \vspace{\fill}
+  \thispagestyle{plain}
+  \newpage
+  \fi \fi}
+\makeatother
+\fancyfoot[c]{\textrm{\textup{\thepage}}} % page number
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\fancypagestyle{plain} { \fancyhf{} \fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}}
+

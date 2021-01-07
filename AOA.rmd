@@ -17,6 +17,7 @@ library(reshape2)
 library(rstatix)
 library(ggpubr)
 library(nlme)
+library(lme4)
 ```
 
 
@@ -27,15 +28,15 @@ library(nlme)
   # qPCR data
 
    qpcr <- 
-      read_delim("C:/Users/jjohn/OneDrive/MScthesis/data/aoa.csv",",",)
+      read_delim("D://OneDrive/MScthesis/data/aoa.csv",",",)
 
   # DNA concentration
 
     dna <- 
-      read_delim("C:/Users/jjohn/OneDrive/MScthesis/data/dna.csv",",",)
+      read_delim("D:/OneDrive/MScthesis/data/dna.csv",",",)
     
     trt <-
-      read_delim("C:/Users/jjohn/OneDrive/MScthesis/data/treatment_factors.csv",",",) 
+      read_delim("D:/OneDrive/MScthesis/data/treatment_factors.csv",",",) 
      
     
   # Variable type changes 
@@ -83,6 +84,7 @@ library(nlme)
      mutate(qty_undil=avg.qty*400)%>% 
      mutate(qty_ul=qty_undil/8)%>% 
      mutate(qty_ng=qty_ul/dna_conc)
+     #rename("qty_ng"="qty_ul")
    calc
    
    index <- calc  %>% 
@@ -291,8 +293,7 @@ genecopy.work <- genecopy %>%
 
 # Deleting columns that are not needed
 genecopy.work$unit <- NULL
-genecopy.work$treatment <- NULL
-genecopy.work$type <- NULL
+
 
 #Inference about dataset, see if ANOVA assumptions are met
 
@@ -333,13 +334,27 @@ Lets check the groups datatable:
 
 
 ###### Datatable from group [fert:yes|fung:yes|time:t3]
-```{r [fert:no|fung:no|time:t2], echo = FALSE}
+```{r [fert:no|fung:yes|time:t2], echo = FALSE}
+inspect<- genecopy.work %>%
+  filter(fert =="no" & fung == "yes" & time == "t2")
+inspect
+rm(inspect)
+
+genecopy2 <- genecopy.work %>%
+  filter(id != "226" & id !="263")
+inspect
+rm(inspect)
+``` 
+372 is relatively low compared to the others, but subjectively is within range. So I'll keep it for the time being
+
+###### Datatable from group [fert:yes|fung:yes|time:t3]
+```{r [fert:yes|fung:yes|time:t3], echo = FALSE}
 inspect<- genecopy.work %>%
   filter(fert =="yes" & fung == "yes" & time == "t3")
 inspect
 rm(inspect)
 ``` 
-372 is relatively low compared to the others, but subjectively is within range. So I'll keep it for the time being
+
 
 ### Normality and heteroskedasticity
 
@@ -429,3 +444,37 @@ Fertilizer is highly significant. Fungicide is borderline significant. May be wo
                   data=genecopy.work)
   summary(fit.nofung)
 ```
+```{r}
+fit <- lmer(qty_ng ~ fert*fung+
+            (1|time),
+            data=genecopy)
+summary(fit)
+
+
+fm1 <- lmer(qty_ng ~ (1|block) + fert*fung + time +  
+             (1+time|block),
+              data=genecopy.work)
+
+fm2 <- lmer(qty_ng ~ (1+time|treatment) + fert*fung  
+             ,
+              data=genecopy.work)
+summary(fm2)
+
+fit <- lmer(qty_ng ~ time * treatment + 
+            (time | block:subject) +
+            (time * treatment | block), 
+            data=genecopy)
+
+
+fit1 <- lmer(qty_ng ~ fert*fung  + (0+time|block), data=genecopy.work)
+fit2 <- lmer(qty_ng ~  time+ (1|block)+ (time||block), data=genecopy.work)
+summary(fit2)
+fit3 <- lmer(qty_ng ~ fert*fung +  (1|time/block), data=genecopy2)
+summary(fit3)
+
+fit4 <- lmer(qty_ng ~ time* fert*(fung|block) + (1|block), data=genecopy2)
+summary(fit4)
+
+genecopy.work$treatment <- as.factor(genecopy.work$treatment)
+```
+

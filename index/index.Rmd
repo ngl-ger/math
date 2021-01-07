@@ -1,0 +1,67 @@
+---
+# UCSB thesis fields
+title: "Improving the Management of Marine Resources through Economics and Data Science"
+author: "Joshua Johnson"
+degree_year: "2018"
+degree_month: "June"
+defense_year: "2018"
+defense_month: "May"
+program: "Slowly and Painfully Working Out the Surprisingly Obvious"
+uc_campus: "Santa Barbara"
+report: "Dissertation"
+degree: "Doctor of Philosphy"
+chair: "Professor Christopher Costello"
+signature1: "Professor Steven Gaines"
+signature2: "Professor Ray Hilborn"
+signature3: "Professor Olivier Deschenes"
+abstract: "The data say 'meh'"
+acknowledgments: "Thanks everyone!"
+dedication: "To Hobbes"
+# End of UCSB thesis fields
+knit: "bookdown::render_book"
+site: bookdown::bookdown_site
+output: 
+  gauchodown::thesis_pdf:
+    latex_engine: xelatex
+  # gauchodown::thesis_gitbook: default
+  # gauchodown::thesis_word: default
+  # gauchodown::thesis_epub: default
+bibliography: bib/thesis.bib
+# Download your specific bibliography database file and refer to it in the line above.
+csl: csl/ieee-with-url.csl
+# Download your specific csl file and refer to it in the line above.
+link-citations: yes
+linkcolor: blue
+citecolor: blue
+urlcolor: blue
+lot: true # create list of tables
+lof: true # create list of figures
+#space_between_paragraphs: true
+# Delete the # at the beginning of the previous line if you'd like
+# to have a blank new line between each paragraph
+#header-includes:
+#- \usepackage{tikz}
+---
+
+<!--
+Above is the YAML (YAML Ain't Markup Language) header that includes a lot of metadata used to produce the document.  Be careful with spacing in this header!
+
+If you'd like to include a comment that won't be produced in your resulting file enclose it in a block like this.
+-->
+
+<!--
+If you receive a duplicate label error after knitting, make sure to delete the index.Rmd file and then knit again.
+-->
+
+```{r include_packages, include = FALSE}
+# This chunk ensures that the gauchodown package is
+# installed and loaded. This gauchodown package includes
+# the template files for the thesis.
+if(!require(devtools))
+  install.packages("devtools", repos = "http://cran.rstudio.com")
+if(!require(gauchodown))
+  devtools::install_github("danovando/gauchodown")
+library(gauchodown)
+```
+
+

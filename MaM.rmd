@@ -143,7 +143,7 @@ genecopy.work$type <- NULL
 
 #Inference about dataset, see if ANOVA assumptions are met
 
-  #Summary statistics and boxplots, to get a feel of our data and check visually for outliers
+  #Summary statistics to get a feel of our data
   genecopy.work %>%
   group_by(fert, fung, time) %>%
   get_summary_stats(qty_ng, type = "mean_sd")
@@ -162,7 +162,7 @@ We have a balanced dataset (n is the same for each group). Moving on to a boxplo
 
 We have one outlier in [fert:no|fung:no|time:t3] and two outliers in [fert:yes|fung:yes|time:t2]. Identifying the outliers:
 
-```{r rhizo 16s outliers, echo=TRUE} 
+```{r rhizo 16s outliers, echo=FALSE} 
   outlier <-  genecopy.work %>%
     group_by(fert,fung, time) %>%
     identify_outliers(qty_ng)
@@ -230,7 +230,7 @@ Let's redo the normality (shapiro) test without the outlier in the group which f
 
 Lets move on to the ANOVA test for rhizo.
 
-### Choosing a stastical model and performing ANOVA
+### ANOVA: choosing a  model 
 
 An analysis of the dataset structure is needed to find the right statistical model. The data was generated in a randomized complete block design (RCBD). 
 
@@ -477,7 +477,7 @@ I'll do a stepwise modelling approach without the mathematic forumlae (will be d
 ```
 
 
-##### Reduced model 2 (only fert)
+##### Reduced model 2 (only fung)
 ```{r soil 16S anova reduced model(only fert), , echo = FALSE}
   
   fit.nofert <- lme(qty_ng ~ fung,
