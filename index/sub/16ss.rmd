@@ -46,7 +46,7 @@ trt$id <- as.factor(trt$id)
   summary <- qpcr %>%
     group_by(type, id)%>%                                    
     summarise(
-      n=n(),
+      n=n(),aaass
       avg.qty = mean(qty, na.rm=TRUE),
       sd.qty=sd(qty, na.rm = TRUE) 
     )%>% 
