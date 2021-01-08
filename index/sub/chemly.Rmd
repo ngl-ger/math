@@ -9,7 +9,7 @@ header-includes:
   - \usepackage[version=4]{mhchem}
 ---
 
-```{r setup, include=FALSE, echo=FALSE, results='hide'}
+```{r setup, include=FALSE, echo=FALSE, results='hide', warning = FALSE, message = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(ggplot2)
@@ -68,7 +68,10 @@ library(ggpubr)
 
 ## Chemical analysis of soil and roots 
 
-Available nitrate (\ce{NO3-})
+Nitrogen was extracted with \ce{KCl} from wet soil samples from first and second timepoint. Available nitrate (\ce{NO3-}) and ammonium (\ce{NH4+}) were measured measured by ion chromatography. 
+
+Plant-available nitrogen in the forms of nitrate (\ce{NO3-}) and ammonium (\ce{NH4+}) were measured in wet soil samples. The data is visualized in barplots with the  standard deviation 
+
 ```{r soil nitrogen, echo=FALSE}
 
   # Plant-available nitrogen
@@ -108,7 +111,7 @@ Available nitrate (\ce{NO3-})
 
 
 
-```{r Chemical Analysis, echo=FALSE}
+```{r Chemical Analysis, echo=FALSE, results='hide'}
 
   
   
