@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex 2021.1.5)  7 JAN 2021 09:40
+This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex 2021.1.5)  7 JAN 2021 12:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -863,47 +863,410 @@ Underfull \hbox (badness 3078) in paragraph at lines 457--459
 Chapter 3.
 [14
 
-] [15] [16]
+]
 Chapter 4.
-[17
+[15
 
-] [18]
+]
+Chapter 5.
+
+Overfull \hbox (42.7123pt too wide) in paragraph at lines 512--512
+[]   \TU/lmtt/m/n/12 type  id        n avg.qty sd.qty dna_conc unit      qty_un
+dil   qty_ul qty_ng[] 
+ []
+
+[16
+
+]
+Overfull \hbox (42.71222pt too wide) in paragraph at lines 512--512
+[]   \TU/lmtt/m/n/12 <chr> <fct> <int>   <dbl>  <dbl>    <dbl> <chr>         <d
+bl>    <dbl>  <dbl>[] 
+ []
+
+
+Overfull \hbox (42.65231pt too wide) in paragraph at lines 512--512
+[] \TU/lmtt/m/n/12 1 rhizo 198       3 230588. 12686.     35.8 DNA[ng_~  922352
+46.   1.15e7 3.22e5[] 
+ []
+
+
+Overfull \hbox (42.65233pt too wide) in paragraph at lines 512--512
+[] \TU/lmtt/m/n/12 2 rhizo 201       3 228907.  6576.     38.1 DNA[ng_~  915628
+08.   1.14e7 3.00e5[] 
+ []
+
+
+Overfull \hbox (42.62831pt too wide) in paragraph at lines 512--512
+[] \TU/lmtt/m/n/12 3 rhizo 206       3 332463.  6923.     47.5 DNA[ng_~ 1329850
+71.   1.66e7 3.50e5[] 
+ []
+
+
+Overfull \hbox (42.71231pt too wide) in paragraph at lines 512--512
+[] \TU/lmtt/m/n/12 4 rhizo 212       3 210821. 25403.     35.1 DNA[ng_~  843285
+27.   1.05e7 3.01e5[] 
+ []
+
+
+Overfull \hbox (42.66432pt too wide) in paragraph at lines 512--512
+[] \TU/lmtt/m/n/12 5 rhizo 216       3 488172. 25382.     52.8 DNA[ng_~ 1952687
+83.   2.44e7 4.62e5[] 
+ []
+
+
+Overfull \hbox (42.64035pt too wide) in paragraph at lines 512--512
+[] \TU/lmtt/m/n/12 6 rhizo 224       3 252674. 30488.     38.6 DNA[ng_~ 1010694
+54.   1.26e7 3.27e5[] 
+ []
+
+
+Overfull \hbox (42.70032pt too wide) in paragraph at lines 512--512
+[] \TU/lmtt/m/n/12 7 rhizo 226       3 353033. 31415.     50.3 DNA[ng_~ 1412133
+54.   1.77e7 3.51e5[] 
+ []
+
+
+Overfull \hbox (42.68834pt too wide) in paragraph at lines 512--512
+[] \TU/lmtt/m/n/12 8 rhizo 232       3 583033. 12524.     60.2 DNA[ng_~ 2332131
+83.   2.92e7 4.85e5[] 
+ []
+
+
+Overfull \hbox (42.64034pt too wide) in paragraph at lines 512--512
+[] \TU/lmtt/m/n/12 9 rhizo 234       3 522109. 92493.     61.1 DNA[ng_~ 2088435
+25    2.61e7 4.27e5[] 
+ []
+
+
+Overfull \hbox (42.66434pt too wide) in paragraph at lines 512--512
+[]\TU/lmtt/m/n/12 10 rhizo 237       3 287493.  3463.     43.1 DNA[ng_~ 1149970
+88.   1.44e7 3.34e5[] 
+ []
+
+
+Overfull \hbox (42.7123pt too wide) in paragraph at lines 528--528
+[]   \TU/lmtt/m/n/12 type  id     qty_ng unit      treatment fert  fung  block 
+row   time  subject[] 
+ []
+
+
+Overfull \hbox (42.71225pt too wide) in paragraph at lines 528--528
+[]   \TU/lmtt/m/n/12 <chr> <fct>   <dbl> <chr>     <chr>     <fct> <fct> <fct> 
+<fct> <fct>   <dbl>[] 
+ []
+
+
+Overfull \hbox (42.70015pt too wide) in paragraph at lines 528--528
+[] \TU/lmtt/m/n/12 1 rhizo 198   321871. GeneCopi~ H00       no    no    b     
+1     t2          1[] 
+ []
+
+
+Overfull \hbox (42.70016pt too wide) in paragraph at lines 528--528
+[] \TU/lmtt/m/n/12 2 rhizo 201   300167. GeneCopi~ H00       no    no    c     
+1     t2          2[] 
+ []
+
+
+Overfull \hbox (42.68817pt too wide) in paragraph at lines 528--528
+[] \TU/lmtt/m/n/12 3 rhizo 206   350108. GeneCopi~ H01       yes   no    b     
+1     t2          6[] 
+ []
+
+
+Overfull \hbox (42.71219pt too wide) in paragraph at lines 528--528
+[] \TU/lmtt/m/n/12 4 rhizo 212   300572. GeneCopi~ HP0       no    yes   b     
+1     t2         11[] 
+ []
+
+
+Overfull \hbox (42.67621pt too wide) in paragraph at lines 528--528
+[] \TU/lmtt/m/n/12 5 rhizo 216   462284. GeneCopi~ HP1       yes   yes   b     
+1     t2         16[] 
+ []
+
+
+Overfull \hbox (42.6882pt too wide) in paragraph at lines 528--528
+[] \TU/lmtt/m/n/12 6 rhizo 224   327467. GeneCopi~ HP0       no    yes   c     
+2     t2         12[] 
+ []
+
+
+Overfull \hbox (42.68819pt too wide) in paragraph at lines 528--528
+[] \TU/lmtt/m/n/12 7 rhizo 226   350719. GeneCopi~ HP0       no    yes   e     
+2     t2         13[] 
+ []
+
+
+Overfull \hbox (42.68817pt too wide) in paragraph at lines 528--528
+[] \TU/lmtt/m/n/12 8 rhizo 232   484569. GeneCopi~ H00       no    no    d     
+2     t2          3[] 
+ []
+
+
+Overfull \hbox (42.70021pt too wide) in paragraph at lines 528--528
+[] \TU/lmtt/m/n/12 9 rhizo 234   427258. GeneCopi~ HP1       yes   yes   c     
+2     t2         17[] 
+ []
+
+
+Overfull \hbox (42.71219pt too wide) in paragraph at lines 528--528
+[]\TU/lmtt/m/n/12 10 rhizo 237   333828. GeneCopi~ H01       yes   no    c     
+2     t2          7[] 
+ []
+
+[17] [18]
+Chapter 6.
+[19
+
+]
+File: thesis2_files/figure-latex/rhizo 16s boxplots-1.pdf Graphic file (type pd
+f)
+<use thesis2_files/figure-latex/rhizo 16s boxplots-1.pdf>
+
+Overfull \hbox (18.06636pt too wide) in paragraph at lines 556--557
+[][] 
+ []
+
+
+Overfull \hbox (12.63255pt too wide) in paragraph at lines 558--559
+[]\TU/lmr/m/n/12 We have one outlier in [fert:no|fung:no|time:t3] and two outli
+ers in [fert:yes|fung:yes|time:t2].
+ []
+
+
+Overfull \hbox (11.81236pt too wide) in paragraph at lines 566--566
+[]  \TU/lmtt/m/n/12 fert  fung  time  id     qty_ng block row   subject is.outl
+ier is.extreme[] 
+ []
+
+[20] [21]
+File: thesis2_files/figure-latex/rhizo 16s normality test and qq plots-1.pdf Gr
+aphic file (type pdf)
+<use thesis2_files/figure-latex/rhizo 16s normality test and qq plots-1.pdf>
+
+Overfull \hbox (18.06636pt too wide) in paragraph at lines 606--608
+[] 
+ []
+
+File: thesis2_files/figure-latex/rhizo 16s normality test and qq plots-2.pdf Gr
+aphic file (type pdf)
+<use thesis2_files/figure-latex/rhizo 16s normality test and qq plots-2.pdf>
+
+Overfull \hbox (18.06636pt too wide) in paragraph at lines 615--617
+[] 
+ []
+
+
+Underfull \vbox (badness 3668) has occurred while \output is active []
+
+[22] [23] [24] [25] [26]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[27]
+Overfull \hbox (5.63223pt too wide) in paragraph at lines 762--762
+[]                   \TU/lmtt/m/n/12 block          time %in% block row %in% ti
+me %in% block[] 
+ []
+
+
+Overfull \hbox (5.62pt too wide) in paragraph at lines 762--762
+[]                       \TU/lmtt/m/n/12 5                       10            
+           19[] 
+ []
+
+[28]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[29] [30] [31]
+File: thesis2_files/figure-latex/soil 16s boxplots-1.pdf Graphic file (type pdf
+)
+<use thesis2_files/figure-latex/soil 16s boxplots-1.pdf>
+
+Overfull \hbox (18.06636pt too wide) in paragraph at lines 878--879
+[] 
+ []
+
+[32]
+Overfull \hbox (17.99236pt too wide) in paragraph at lines 903--903
+[]  \TU/lmtt/m/n/12 fert  fung  time  id      qty_ng block row   subject is.out
+lier is.extreme[] 
+ []
+
+[33]
+File: thesis2_files/figure-latex/soil 16s normality test and qq plots-1.pdf Gra
+phic file (type pdf)
+<use thesis2_files/figure-latex/soil 16s normality test and qq plots-1.pdf>
+File: thesis2_files/figure-latex/soil 16s normality test and qq plots-2.pdf Gra
+phic file (type pdf)
+<use thesis2_files/figure-latex/soil 16s normality test and qq plots-2.pdf>
+
+Overfull \hbox (18.06636pt too wide) in paragraph at lines 925--926
+[]
+ []
+
+
+Overfull \hbox (18.06636pt too wide) in paragraph at lines 925--926
+[] 
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[34]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[35] [36]
+Underfull \hbox (badness 4156) in paragraph at lines 963--964
+[] []\TU/lmr/bx/n/12 Possible reasons why the gene copy numbers differ so much[
+] \TU/lmr/m/n/12 For
+ []
+
+[37] [38] [39] [40]
+Overfull \hbox (5.63223pt too wide) in paragraph at lines 1067--1067
+[]                   \TU/lmtt/m/n/12 block          time %in% block row %in% ti
+me %in% block[] 
+ []
+
+
+Overfull \hbox (5.63199pt too wide) in paragraph at lines 1067--1067
+[]                       \TU/lmtt/m/n/12 5                       10            
+           17[] 
+ []
+
+[41]
+Underfull \vbox (badness 5652) has occurred while \output is active []
+
+[42]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[43] [44]
+Chapter 7.
+
+Overfull \hbox (42.71205pt too wide) in paragraph at lines 1161--1161
+[]\TU/lmtt/m/n/12 -- Column specification -------------------------------------
+-------------------[] 
+ []
+
+[45
+
+]
+Overfull \hbox (61.25241pt too wide) in paragraph at lines 1177--1177
+[]\TU/lmtt/m/n/12 `summarise()` regrouping output by 'id', 'month' (override wi
+th `.groups` argument)[] 
+ []
+
+[46]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[47]
+File: thesis2_files/figure-latex/Climate Data-1.pdf Graphic file (type pdf)
+<use thesis2_files/figure-latex/Climate Data-1.pdf>
+
+Overfull \hbox (18.06636pt too wide) in paragraph at lines 1246--1247
+[] 
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[48]
+Overfull \hbox (42.71205pt too wide) in paragraph at lines 1261--1261
+[]\TU/lmtt/m/n/12 -- Column specification -------------------------------------
+-------------------[] 
+ []
+
+[49]
+Overfull \hbox (135.41238pt too wide) in paragraph at lines 1264--1264
+[]\TU/lmtt/m/n/12 `summarise()` regrouping output by 'type', 'timepoint', 'id' 
+(override with `.groups` argument)[] 
+ []
+
+File: thesis2_files/figure-latex/Chemical Analysis-1.pdf Graphic file (type pdf
+)
+<use thesis2_files/figure-latex/Chemical Analysis-1.pdf>
+File: thesis2_files/figure-latex/Chemical Analysis-2.pdf Graphic file (type pdf
+)
+<use thesis2_files/figure-latex/Chemical Analysis-2.pdf>
+File: thesis2_files/figure-latex/Chemical Analysis-3.pdf Graphic file (type pdf
+)
+<use thesis2_files/figure-latex/Chemical Analysis-3.pdf>
+File: thesis2_files/figure-latex/Chemical Analysis-4.pdf Graphic file (type pdf
+)
+<use thesis2_files/figure-latex/Chemical Analysis-4.pdf>
+
+Overfull \hbox (18.06636pt too wide) in paragraph at lines 1265--1266
+[]
+ []
+
+
+Overfull \hbox (18.06636pt too wide) in paragraph at lines 1265--1266
+[]
+ []
+
+
+Overfull \hbox (18.06636pt too wide) in paragraph at lines 1265--1266
+[]
+ []
+
+
+Overfull \hbox (18.06636pt too wide) in paragraph at lines 1265--1266
+[] 
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[50]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[51]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[52]
+Underfull \vbox (badness 2707) has occurred while \output is active []
+
+[53] [54] [55]
+Chapter 8.
+[56
+
+] [57]
 File: figure/uw.png Graphic file (type bmp)
 <figure/uw.png>
-[19
+[58
 
 ]
 File: thesis2_files/figure-latex/delaysboxplot-1.pdf Graphic file (type pdf)
 <use thesis2_files/figure-latex/delaysboxplot-1.pdf>
-[20
+[59
 
-] [21]
+] [60]
 File: figure/subdivision.pdf Graphic file (type pdf)
 <use figure/subdivision.pdf>
 File: figure/subdivision.pdf Graphic file (type pdf)
 <use figure/subdivision.pdf>
-[22
+[61
 
-] [23] [24] [25
+] [62] [63] [64
 
 ]
 Appendix A.
-[26
+[65
 
-] [27]
+] [66]
 Appendix B.
-[28
+[67
 
 ]
-Overfull \hbox (30.352pt too wide) in paragraph at lines 829--829
+Overfull \hbox (30.352pt too wide) in paragraph at lines 1678--1678
 []\TU/lmtt/m/n/12 - Session info ----------------------------------------------
 -----------------[] 
  []
 
-[29
+[68
 
 ]
-Overfull \hbox (30.35199pt too wide) in paragraph at lines 829--829
+Overfull \hbox (30.35199pt too wide) in paragraph at lines 1678--1678
 []\TU/lmtt/m/n/12 - Packages --------------------------------------------------
 -----------------[] 
  []
@@ -911,8 +1274,8 @@ Overfull \hbox (30.35199pt too wide) in paragraph at lines 829--829
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[30]
-Overfull \hbox (11.78845pt too wide) in paragraph at lines 829--829
+[69]
+Overfull \hbox (11.78845pt too wide) in paragraph at lines 1678--1678
 [] \TU/lmtt/m/n/12 gauchodown  * 1.0     2021-01-07 [1] Github (danovando/gauch
 odown@d9a19b8)[] 
  []
@@ -920,20 +1283,26 @@ odown@d9a19b8)[]
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[31] [32] [33
+[70]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[71]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[72] [73] [74
 
 
 ] (./thesis2.aux)
 Package rerunfilecheck Info: File `thesis2.out' has not changed.
-(rerunfilecheck)             Checksum: BABC6F47D69750A1473632FCEB1EC75F.
+(rerunfilecheck)             Checksum: 17C045C9CFC13038AE3B16A4CBE23EFE.
  ) 
 Here is how much of TeX's memory you used:
- 18441 strings out of 479218
- 323846 string characters out of 5873131
- 664309 words of memory out of 5000000
- 37745 multiletter control sequences out of 15000+600000
+ 18547 strings out of 479218
+ 328671 string characters out of 5873131
+ 670602 words of memory out of 5000000
+ 37840 multiletter control sequences out of 15000+600000
  410294 words of font info for 74 fonts, out of 8000000 for 9000
  15 hyphenation exceptions out of 8191
- 78i,12n,83p,853b,707s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 78i,12n,83p,853b,831s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on thesis2.pdf (43 pages).
+Output written on thesis2.pdf (84 pages).

@@ -277,7 +277,7 @@ The standard deviation is less than 6.
 \end{quote}
 Note the use of \texttt{\textgreater{}} here, which signifies a quotation environment that will be indented.
 
-As you see with \texttt{\$2\ \textbackslash{}pi\$} above, mathematics can be added by surrounding the mathematical text with dollar signs. More examples of this are in \protect\hyperlink{math-sci}{Mathematics and Science} if you uncomment the code in \protect\hyperlink{math}{Math}.
+As you see with \texttt{\$2\ \textbackslash{}pi\$} above, mathematics can be added by surrounding the mathematical text with dollar signs. More examples of this are in {[}Mathematics and Science{]} if you uncomment the code in \protect\hyperlink{math}{Math}.
 
 \hypertarget{including-plots}{%
 \section{Including plots}\label{including-plots}}
@@ -459,7 +459,810 @@ We see that the flight occurred on March 3rd and departed a little after 2 PM on
   \texttt{ggplot2} Documentation - \url{http://docs.ggplot2.org/current/}
 \end{itemize}
 \hypertarget{math-sci}{%
-\chapter{Mathematics and Science}\label{math-sci}}
+\chapter{Results}\label{math-sci}}
+
+\hypertarget{packages-data-loading-etc.}{%
+\chapter{Packages, data loading etc.}\label{packages-data-loading-etc.}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(tidyverse)}
+\KeywordTok{library}\NormalTok{(dplyr)}
+\KeywordTok{library}\NormalTok{(ggplot2)}
+\KeywordTok{library}\NormalTok{(cowplot)}
+\KeywordTok{library}\NormalTok{(reshape2)}
+\KeywordTok{library}\NormalTok{(rstatix)}
+\KeywordTok{library}\NormalTok{(ggpubr)}
+\KeywordTok{library}\NormalTok{(nlme)}
+\KeywordTok{library}\NormalTok{(lme4)}
+\end{Highlighting}
+\end{Shaded}
+\hypertarget{basic-statistics-and-data-mangling}{%
+\chapter{Basic statistics and data mangling}\label{basic-statistics-and-data-mangling}}
+\begin{verbatim}
+# A tibble: 80 x 5
+   type  id        n avg.qty sd.qty
+   <chr> <fct> <int>   <dbl>  <dbl>
+ 1 rhizo 198       3 230588. 12686.
+ 2 rhizo 201       3 228907.  6576.
+ 3 rhizo 206       3 332463.  6923.
+ 4 rhizo 212       3 210821. 25403.
+ 5 rhizo 216       3 488172. 25382.
+ 6 rhizo 224       3 252674. 30488.
+ 7 rhizo 226       3 353033. 31415.
+ 8 rhizo 232       3 583033. 12524.
+ 9 rhizo 234       3 522109. 92493.
+10 rhizo 237       3 287493.  3463.
+# ... with 70 more rows
+\end{verbatim}
+\begin{verbatim}
+# A tibble: 80 x 10
+   type  id        n avg.qty sd.qty dna_conc unit      qty_undil   qty_ul qty_ng
+   <chr> <fct> <int>   <dbl>  <dbl>    <dbl> <chr>         <dbl>    <dbl>  <dbl>
+ 1 rhizo 198       3 230588. 12686.     35.8 DNA[ng_~  92235246.   1.15e7 3.22e5
+ 2 rhizo 201       3 228907.  6576.     38.1 DNA[ng_~  91562808.   1.14e7 3.00e5
+ 3 rhizo 206       3 332463.  6923.     47.5 DNA[ng_~ 132985071.   1.66e7 3.50e5
+ 4 rhizo 212       3 210821. 25403.     35.1 DNA[ng_~  84328527.   1.05e7 3.01e5
+ 5 rhizo 216       3 488172. 25382.     52.8 DNA[ng_~ 195268783.   2.44e7 4.62e5
+ 6 rhizo 224       3 252674. 30488.     38.6 DNA[ng_~ 101069454.   1.26e7 3.27e5
+ 7 rhizo 226       3 353033. 31415.     50.3 DNA[ng_~ 141213354.   1.77e7 3.51e5
+ 8 rhizo 232       3 583033. 12524.     60.2 DNA[ng_~ 233213183.   2.92e7 4.85e5
+ 9 rhizo 234       3 522109. 92493.     61.1 DNA[ng_~ 208843525    2.61e7 4.27e5
+10 rhizo 237       3 287493.  3463.     43.1 DNA[ng_~ 114997088.   1.44e7 3.34e5
+# ... with 70 more rows
+\end{verbatim}
+\begin{verbatim}
+# A tibble: 80 x 11
+   type  id     qty_ng unit      treatment fert  fung  block row   time  subject
+   <chr> <fct>   <dbl> <chr>     <chr>     <fct> <fct> <fct> <fct> <fct>   <dbl>
+ 1 rhizo 198   321871. GeneCopi~ H00       no    no    b     1     t2          1
+ 2 rhizo 201   300167. GeneCopi~ H00       no    no    c     1     t2          2
+ 3 rhizo 206   350108. GeneCopi~ H01       yes   no    b     1     t2          6
+ 4 rhizo 212   300572. GeneCopi~ HP0       no    yes   b     1     t2         11
+ 5 rhizo 216   462284. GeneCopi~ HP1       yes   yes   b     1     t2         16
+ 6 rhizo 224   327467. GeneCopi~ HP0       no    yes   c     2     t2         12
+ 7 rhizo 226   350719. GeneCopi~ HP0       no    yes   e     2     t2         13
+ 8 rhizo 232   484569. GeneCopi~ H00       no    no    d     2     t2          3
+ 9 rhizo 234   427258. GeneCopi~ HP1       yes   yes   c     2     t2         17
+10 rhizo 237   333828. GeneCopi~ H01       yes   no    c     2     t2          7
+# ... with 70 more rows
+\end{verbatim}
+The data preparation is finished for the 16s rRNA gene copy data. We have worked with the raw quantity values used qPCR machine (standardized on the individual runs standard curve), did summary statistics (averaging the technical replicates) and calculated gene copy number per nanogram DNA.
+
+Now we move on to the statistical modelling and checking for significance.
+
+\hypertarget{statistical-modelling-and-sig.-testing}{%
+\chapter{Statistical modelling and sig. testing}\label{statistical-modelling-and-sig.-testing}}
+
+\hypertarget{rhizo}{%
+\section{Rhizo}\label{rhizo}}
+
+\hypertarget{checking-data-balance}{%
+\subsection{Checking data balance}\label{checking-data-balance}}
+\begin{verbatim}
+# A tibble: 8 x 7
+  fert  fung  time  variable     n    mean     sd
+  <fct> <fct> <fct> <chr>    <dbl>   <dbl>  <dbl>
+1 no    no    t2    qty_ng       5 371209. 74345.
+2 no    no    t3    qty_ng       5 240046. 28114.
+3 no    yes   t2    qty_ng       5 333985. 22320.
+4 no    yes   t3    qty_ng       5 259493. 16454.
+5 yes   no    t2    qty_ng       5 335729. 19108.
+6 yes   no    t3    qty_ng       5 300139. 64159.
+7 yes   yes   t2    qty_ng       5 406397. 52670.
+8 yes   yes   t3    qty_ng       5 297449. 24004.
+\end{verbatim}
+We have a balanced dataset (n is the same for each group). Moving on to a boxplot to visually inspect groups and look for outliers.
+
+\includegraphics{thesis2_files/figure-latex/rhizo 16s boxplots-1.pdf}
+
+We have one outlier in {[}fert:no\textbar fung:no\textbar time:t3{]} and two outliers in {[}fert:yes\textbar fung:yes\textbar time:t2{]}. Identifying the outliers:
+\begin{verbatim}
+# A tibble: 3 x 10
+  fert  fung  time  id     qty_ng block row   subject is.outlier is.extreme
+  <fct> <fct> <fct> <fct>   <dbl> <fct> <fct>   <dbl> <lgl>      <lgl>     
+1 no    no    t3    355   290010. e     3           4 TRUE       TRUE      
+2 yes   yes   t2    216   462284. b     1          16 TRUE       FALSE     
+3 yes   yes   t2    253   319869. f     3          18 TRUE       TRUE      
+\end{verbatim}
+Replicate 216, 355 and 253 are outliers. The two last ones are extreme outliers. Consult the `index' file to see the differences between the replicates and their respective groups.
+\begin{quote}
+Values above Q3 + 1.5xIQR or below Q1 - 1.5xIQR are considered as outliers. Values above Q3 + 3xIQR or below Q1 - 3xIQR are considered as extreme points (or extreme outliers).
+\end{quote}
+We will perform the following analysis with and without the extreme outliers.
+
+\hypertarget{normality-and-heteroskedasticity}{%
+\subsection{Normality and heteroskedasticity}\label{normality-and-heteroskedasticity}}
+\begin{Shaded}
+\begin{Highlighting}[]
+  \CommentTok{# Normality test with all outliers (Shapiro Test)}
+    
+\NormalTok{  genecopy.work }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{group_by}\NormalTok{(fert, fung, time) }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{shapiro_test}\NormalTok{(qty_ng)}
+\end{Highlighting}
+\end{Shaded}
+\begin{verbatim}
+# A tibble: 8 x 6
+  fert  fung  time  variable statistic       p
+  <fct> <fct> <fct> <chr>        <dbl>   <dbl>
+1 no    no    t2    qty_ng       0.918 0.517  
+2 no    no    t3    qty_ng       0.651 0.00271
+3 no    yes   t2    qty_ng       0.948 0.721  
+4 no    yes   t3    qty_ng       0.909 0.464  
+5 yes   no    t2    qty_ng       0.935 0.633  
+6 yes   no    t3    qty_ng       0.869 0.262  
+7 yes   yes   t2    qty_ng       0.880 0.308  
+8 yes   yes   t3    qty_ng       0.987 0.968  
+\end{verbatim}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# QQplots: Investigate heteroskedasticity visually }
+
+  \CommentTok{# All datapoints combined}
+\NormalTok{   genecopy.work }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{ggqqplot}\NormalTok{(}\StringTok{"qty_ng"}\NormalTok{, }\DataTypeTok{ggtheme =} \KeywordTok{theme_bw}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+\includegraphics{thesis2_files/figure-latex/rhizo 16s normality test and qq plots-1.pdf}
+\begin{Shaded}
+\begin{Highlighting}[]
+  \CommentTok{# Grouped by treatments and timepoints}
+\NormalTok{   genecopy.work }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{ggqqplot}\NormalTok{(}\StringTok{"qty_ng"}\NormalTok{, }\DataTypeTok{ggtheme =} \KeywordTok{theme_bw}\NormalTok{())}\OperatorTok{+}
+\StringTok{    }\KeywordTok{facet_grid}\NormalTok{(fert }\OperatorTok{+}\StringTok{ }\NormalTok{fung }\OperatorTok{~}\StringTok{ }\NormalTok{time, }\DataTypeTok{labeller =} \StringTok{"label_both"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+\includegraphics{thesis2_files/figure-latex/rhizo 16s normality test and qq plots-2.pdf}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# The deviation in [fert:no|fung:no|time:t3] is clearly visible, exclude the outlier [id: 355]}
+  \CommentTok{# [fert:yes|fung:yes|time:t2] shows also an outlier far away from the line, somewhere at 3e+05 [id:253]}
+  \CommentTok{# Repeat normality test with filter of outliers}
+  \CommentTok{# Heteroskedascticity not perfect but OK }
+\end{Highlighting}
+\end{Shaded}
+Except for one group, all respective p-values above 0.05. The treatment group with a p-value under 0.05 had an outlier (see outlier check).
+
+QQplots look fine.
+
+Let's redo the normality (shapiro) test without the outlier in the group which failed the normality test.
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Shapiro Test with outliers removed    }
+\NormalTok{  genecopy.work }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{filter}\NormalTok{(id }\OperatorTok{!=}\StringTok{ "355"}\NormalTok{)}\OperatorTok{%>%}
+\StringTok{    }\CommentTok{#filter(id != "253")%>%}
+\StringTok{    }\KeywordTok{group_by}\NormalTok{(fert, fung, time) }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{shapiro_test}\NormalTok{(qty_ng)}
+\end{Highlighting}
+\end{Shaded}
+\begin{verbatim}
+# A tibble: 8 x 6
+  fert  fung  time  variable statistic     p
+  <fct> <fct> <fct> <chr>        <dbl> <dbl>
+1 no    no    t2    qty_ng       0.918 0.517
+2 no    no    t3    qty_ng       0.896 0.413
+3 no    yes   t2    qty_ng       0.948 0.721
+4 no    yes   t3    qty_ng       0.909 0.464
+5 yes   no    t2    qty_ng       0.935 0.633
+6 yes   no    t3    qty_ng       0.869 0.262
+7 yes   yes   t2    qty_ng       0.880 0.308
+8 yes   yes   t3    qty_ng       0.987 0.968
+\end{verbatim}
+\begin{Shaded}
+\begin{Highlighting}[]
+  \CommentTok{# Now all trt grps pass the shapiro test (p > 0.05), normality can be assumed}
+  \CommentTok{# QQplots look better, better heteroskedasticity }
+  \CommentTok{# Let's provide a copydataset with the outliers excluded}
+  
+\NormalTok{   genecopy.work.filtered <-}\StringTok{ }\NormalTok{genecopy.work }\OperatorTok{%>%}
+\StringTok{    }\CommentTok{#filter(id != "253")%>%}
+\StringTok{     }\KeywordTok{filter}\NormalTok{(id }\OperatorTok{!=}\StringTok{ "355"}\NormalTok{)}
+     
+
+\CommentTok{# Finished the preliminaries for the anova test}
+\end{Highlighting}
+\end{Shaded}
+Lets move on to the ANOVA test for rhizo.
+
+\hypertarget{anova-choosing-a-model}{%
+\subsection{ANOVA: choosing a model}\label{anova-choosing-a-model}}
+
+An analysis of the dataset structure is needed to find the right statistical model. The data was generated in a randomized complete block design (RCBD).
+
+\hypertarget{model-parameters}{%
+\paragraph{Model parameters}\label{model-parameters}}
+
+\hypertarget{fixed-effects}{%
+\subparagraph{Fixed effects}\label{fixed-effects}}
+\begin{itemize}
+\tightlist
+\item
+  Fertilizer (fert) (Binary variable (yes/no))
+\item
+  Fungicide and growth (fung) (Binary variable (yes/no))
+\end{itemize}
+\hypertarget{random-effects}{%
+\subparagraph{Random effects}\label{random-effects}}
+\begin{itemize}
+\tightlist
+\item
+  Time
+\item
+  Block
+\item
+  (Row)
+\item
+  (Could possibly include rainfall 3-7 days before sampling)
+\end{itemize}
+\hypertarget{mixed-effect-model}{%
+\subsubsection{Mixed effect model}\label{mixed-effect-model}}
+
+The model needs to account for the above listed fixed and random effects. The regular lm() function of R stats package will fit all variables as fixed effects if they are integrated into the forumlae. Therefore we need the package nlme which can account for random effects. Because we are using only two timepoints I will stick to a linear model. Generally, I'd consider a non-linear model if all timepoints would be in the analysis. We are investigating gene copy numbers which are directly correlated and have a causal relation ship with number of bacteria. Bacteria growth is better estimated with a logistic regression.
+
+I'll do a stepwise modelling approach without the mathematic forumlae (will be done in the thesis tho).
+
+\hypertarget{all-main-effects-interaction-full-model}{%
+\paragraph{All main effects + Interaction (Full model)}\label{all-main-effects-interaction-full-model}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Fitting a linear mixed effect model to our genecopynumber dataset}
+  \CommentTok{# Treatment variables (fert|fung) are treated as fixed effects}
+  \CommentTok{# Time and Block are random effect variables (can't be replicated)}
+  \CommentTok{# We use the package nlme to effectively input random effect variables for our model}
+  \CommentTok{# Interaction of fert*fung must be tested, because we have two factorial experiment }
+  \CommentTok{# It is also possible to just type in fert*fung as predictor variable, the package will fit also the main effects}
+  \CommentTok{# If more timepoints of this are used, a non-linear model would be better because bacteria growth is not linear}
+  
+\NormalTok{  fit.all <-}\StringTok{ }\KeywordTok{lme}\NormalTok{(qty_ng }\OperatorTok{~}\StringTok{ }\NormalTok{fert}\OperatorTok{+}\NormalTok{fung}\OperatorTok{+}\NormalTok{fert}\OperatorTok{*}\NormalTok{fung,}
+                  \DataTypeTok{random =} \KeywordTok{list}\NormalTok{(}\OperatorTok{~}\DecValTok{1}\OperatorTok{|}\NormalTok{block, }\OperatorTok{~}\DecValTok{1}\OperatorTok{|}\NormalTok{time, }\OperatorTok{~}\DecValTok{1}\OperatorTok{|}\NormalTok{row),}
+                  \DataTypeTok{data=}\NormalTok{genecopy.work.filtered)}
+  \KeywordTok{summary}\NormalTok{(fit.all)}
+\end{Highlighting}
+\end{Shaded}
+\begin{verbatim}
+Linear mixed-effects model fit by REML
+  Data: genecopy.work.filtered 
+       AIC      BIC    logLik
+  891.8874 904.3302 -437.9437
+
+Random effects:
+ Formula: ~1 | block
+        (Intercept)
+StdDev:     2.11687
+
+ Formula: ~1 | time %in% block
+        (Intercept)
+StdDev:    44341.31
+
+ Formula: ~1 | row %in% time %in% block
+        (Intercept) Residual
+StdDev:    23.07462 47814.73
+
+Fixed effects:  qty_ng ~ fert + fung + fert * fung 
+                    Value Std.Error DF   t-value p-value
+(Intercept)     303825.58  21371.60 17 14.216324  0.0000
+fertyes          14108.35  22107.80 17  0.638162  0.5319
+fungyes          -7086.54  22107.80 17 -0.320545  0.7525
+fertyes:fungyes  41075.50  30757.19 17  1.335476  0.1993
+ Correlation: 
+                (Intr) fertys fungys
+fertyes         -0.551              
+fungyes         -0.551  0.532       
+fertyes:fungyes  0.396 -0.719 -0.719
+
+Standardized Within-Group Residuals:
+       Min         Q1        Med         Q3        Max 
+-1.3954961 -0.5807666 -0.1468039  0.3914567  2.5478950 
+
+Number of Observations: 39
+Number of Groups: 
+                   block          time %in% block row %in% time %in% block 
+                       5                       10                       19 
+\end{verbatim}
+The interaction term is not significant, so I'm droping it from the model, leaving only the main effects in.
+
+\hypertarget{both-main-effects-reduced-model}{%
+\paragraph{Both main effects (Reduced model)}\label{both-main-effects-reduced-model}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{  fit.nointeraction <-}\StringTok{ }\KeywordTok{lme}\NormalTok{(qty_ng }\OperatorTok{~}\StringTok{ }\NormalTok{fert}\OperatorTok{+}\NormalTok{fung,}
+                  \DataTypeTok{random =} \KeywordTok{list}\NormalTok{(}\OperatorTok{~}\DecValTok{1}\OperatorTok{|}\NormalTok{block, }\OperatorTok{~}\DecValTok{1}\OperatorTok{|}\NormalTok{time),}
+                  \DataTypeTok{data=}\NormalTok{genecopy.work.filtered)}
+  \KeywordTok{summary}\NormalTok{(fit.nointeraction)}
+\end{Highlighting}
+\end{Shaded}
+\begin{verbatim}
+Linear mixed-effects model fit by REML
+  Data: genecopy.work.filtered 
+       AIC      BIC    logLik
+  912.1677 921.6688 -450.0838
+
+Random effects:
+ Formula: ~1 | block
+        (Intercept)
+StdDev:    5.363311
+
+ Formula: ~1 | time %in% block
+        (Intercept) Residual
+StdDev:    44539.61 48404.24
+
+Fixed effects:  qty_ng ~ fert + fung 
+                Value Std.Error DF   t-value p-value
+(Intercept) 292542.79  19789.96 27 14.782382  0.0000
+fertyes      35322.05  15559.36 27  2.270148  0.0314
+fungyes      14127.16  15559.36 27  0.907953  0.3719
+ Correlation: 
+        (Intr) fertys
+fertyes -0.418       
+fungyes -0.418  0.032
+
+Standardized Within-Group Residuals:
+       Min         Q1        Med         Q3        Max 
+-1.3802533 -0.4939084 -0.1678409  0.2697620  2.7488597 
+
+Number of Observations: 39
+Number of Groups: 
+          block time %in% block 
+              5              10 
+\end{verbatim}
+Fertilizer (fert) is sig. but fungicide and growth regulators (fung) not. I'm dropping fung as a effect from the model.
+
+\hypertarget{only-fert-as-main-effect}{%
+\paragraph{Only Fert as main effect}\label{only-fert-as-main-effect}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{  fit.nofung <-}\StringTok{ }\KeywordTok{lme}\NormalTok{(qty_ng }\OperatorTok{~}\StringTok{ }\NormalTok{fert,}
+                  \DataTypeTok{random =} \KeywordTok{list}\NormalTok{(}\OperatorTok{~}\DecValTok{1}\OperatorTok{|}\NormalTok{block,}\OperatorTok{~}\DecValTok{1}\OperatorTok{|}\NormalTok{time),}
+                  \DataTypeTok{data=}\NormalTok{genecopy.work.filtered)}
+  \KeywordTok{summary}\NormalTok{(fit.nofung)}
+\end{Highlighting}
+\end{Shaded}
+\begin{verbatim}
+Linear mixed-effects model fit by REML
+  Data: genecopy.work.filtered 
+       AIC      BIC    logLik
+  932.1343 940.1888 -461.0671
+
+Random effects:
+ Formula: ~1 | block
+        (Intercept)
+StdDev:    5.905738
+
+ Formula: ~1 | time %in% block
+        (Intercept) Residual
+StdDev:    44307.45 48320.63
+
+Fixed effects:  qty_ng ~ fert 
+                Value Std.Error DF   t-value p-value
+(Intercept) 300064.66  17904.63 28 16.759051  0.0000
+fertyes      34863.75  15524.34 28  2.245748  0.0328
+ Correlation: 
+        (Intr)
+fertyes -0.447
+
+Standardized Within-Group Residuals:
+        Min          Q1         Med          Q3         Max 
+-1.52321817 -0.63607437 -0.04244137  0.36656202  2.60355504 
+
+Number of Observations: 39
+Number of Groups: 
+          block time %in% block 
+              5              10 
+\end{verbatim}
+This is the final model. We have a significant effect of fert on 16S gene copy numbers in the rhizo type soil samples.
+
+\hypertarget{soil}{%
+\section{Soil}\label{soil}}
+
+\hypertarget{checking-the-datas-balance}{%
+\subsection{Checking the datas balance}\label{checking-the-datas-balance}}
+\begin{verbatim}
+# A tibble: 8 x 7
+  fert  fung  time  variable     n    mean      sd
+  <fct> <fct> <fct> <chr>    <dbl>   <dbl>   <dbl>
+1 no    no    t2    qty_ng       5 165023. 225148.
+2 no    no    t3    qty_ng       5 173726.  98246.
+3 no    yes   t2    qty_ng       5 488698. 356576.
+4 no    yes   t3    qty_ng       5 197417.  18488.
+5 yes   no    t2    qty_ng       5 425696.  16304.
+6 yes   no    t3    qty_ng       5 177266.  26063.
+7 yes   yes   t2    qty_ng       5 418116.  33256.
+8 yes   yes   t3    qty_ng       5 170149.  58194.
+\end{verbatim}
+We have a balanced dataset (n is the same for each group). Moving on to a boxplot to visually inspect groups and look for outliers.
+
+\hypertarget{boxplot-to-inspect-data-visually}{%
+\subsection{Boxplot to inspect data visually}\label{boxplot-to-inspect-data-visually}}
+
+\includegraphics{thesis2_files/figure-latex/soil 16s boxplots-1.pdf}
+
+We have 7 outliers. 7 of 20 datapoints are outliers. Not good. The boxplots are very narrow for t3 and for the {[}fert:yes{]} groups.
+
+\hypertarget{identifying-the-outliers.}{%
+\subsection{Identifying the outliers.}\label{identifying-the-outliers.}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{  outlier <-}\StringTok{  }\NormalTok{genecopy.work }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{group_by}\NormalTok{(fert,fung, time) }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{identify_outliers}\NormalTok{(qty_ng)}
+\NormalTok{  outlier}
+\end{Highlighting}
+\end{Shaded}
+\begin{verbatim}
+# A tibble: 7 x 10
+  fert  fung  time  id      qty_ng block row   subject is.outlier is.extreme
+  <fct> <fct> <fct> <fct>    <dbl> <fct> <fct>   <dbl> <lgl>      <lgl>     
+1 no    no    t3    382       99.0 f     4           5 TRUE       TRUE      
+2 no    yes   t3    359   167569.  e     3          14 TRUE       FALSE     
+3 yes   no    t2    237   451180.  c     2           7 TRUE       TRUE      
+4 yes   no    t2    251   406456.  f     3           9 TRUE       FALSE     
+5 yes   no    t3    343   219417.  d     3           8 TRUE       FALSE     
+6 yes   yes   t3    365   248032.  e     4          19 TRUE       TRUE      
+7 yes   yes   t3    372    84678.  f     4          20 TRUE       TRUE      
+\end{verbatim}
+4/7 outliers are extreme:
+\begin{quote}
+Values above Q3 + 1.5xIQR or below Q1 - 1.5xIQR are considered as outliers. Values above Q3 + 3xIQR or below Q1 - 3xIQR are considered as extreme points (or extreme outliers).
+\end{quote}
+We have to check normality test and inspect QQplots to determine if ANOVA will be a viable option for eval here.
+
+\hypertarget{normality-and-heteroskedasticity-1}{%
+\subsection{Normality and heteroskedasticity}\label{normality-and-heteroskedasticity-1}}
+\begin{verbatim}
+# A tibble: 8 x 6
+  fert  fung  time  variable statistic       p
+  <fct> <fct> <fct> <chr>        <dbl>   <dbl>
+1 no    no    t2    qty_ng       0.685 0.00666
+2 no    no    t3    qty_ng       0.692 0.00787
+3 no    yes   t2    qty_ng       0.890 0.355  
+4 no    yes   t3    qty_ng       0.898 0.398  
+5 yes   no    t2    qty_ng       0.933 0.616  
+6 yes   no    t3    qty_ng       0.914 0.495  
+7 yes   yes   t2    qty_ng       0.868 0.258  
+8 yes   yes   t3    qty_ng       0.934 0.624  
+\end{verbatim}
+\includegraphics{thesis2_files/figure-latex/soil 16s normality test and qq plots-1.pdf} \includegraphics{thesis2_files/figure-latex/soil 16s normality test and qq plots-2.pdf}
+
+Two groups fail the normality test: {[}fert:no\textbar fung:no\textbar time:t2{]} and {[}fert:no\textbar fung:no\textbar time:t3{]}. Crosschecking the outlier output. In group {[}fert:no\textbar fung:no\textbar time:t3{]} we can exclude 382 which is an extreme outlier. But for the {[}fert:no\textbar fung:no\textbar time:t2{]} group, there is no outlier. The QQ plot give the same information as the outlier check. We have tails at the beginning and end which indicate extreme values. For QQPlots of the individual groups it looks fine.
+
+\hypertarget{groups-that-failed-the-shapiro-test-and-their-replicates}{%
+\paragraph{Groups that failed the Shapiro Test and their replicates}\label{groups-that-failed-the-shapiro-test-and-their-replicates}}
+
+\hypertarget{datatable-from-group-fertnofungnotimet2}{%
+\subparagraph{Datatable from group {[}fert:no\textbar fung:no\textbar time:t2{]}}\label{datatable-from-group-fertnofungnotimet2}}
+\begin{verbatim}
+# A tibble: 5 x 8
+  id     qty_ng fert  fung  block row   time  subject
+  <fct>   <dbl> <fct> <fct> <fct> <fct> <fct>   <dbl>
+1 198   411193. no    no    b     1     t2          1
+2 201      419. no    no    c     1     t2          2
+3 232      625. no    no    d     2     t2          3
+4 259   412128. no    no    e     3     t2          4
+5 286      751. no    no    f     4     t2          5
+\end{verbatim}
+\hypertarget{datatable-from-group-fertnofungnotimet3}{%
+\subparagraph{Datatable from group {[}fert:no\textbar fung:no\textbar time:t3{]}}\label{datatable-from-group-fertnofungnotimet3}}
+\begin{verbatim}
+# A tibble: 5 x 8
+  id      qty_ng fert  fung  block row   time  subject
+  <fct>    <dbl> <fct> <fct> <fct> <fct> <fct>   <dbl>
+1 294   226141.  no    no    b     1     t3          1
+2 297   193851.  no    no    c     1     t3          2
+3 328   234292.  no    no    d     2     t3          3
+4 355   214247.  no    no    e     3     t3          4
+5 382       99.0 no    no    f     4     t3          5
+\end{verbatim}
+\hypertarget{section}{%
+\paragraph{}\label{section}}
+\addcontentsline{toc}{paragraph}{}
+
+\hypertarget{possible-reasons-why-the-gene-copy-numbers-differ-so-much}{%
+\paragraph{Possible reasons why the gene copy numbers differ so much}\label{possible-reasons-why-the-gene-copy-numbers-differ-so-much}}
+
+For {[}fert:no\textbar fung:no\textbar time:t2{]} 198 and 259 have very high 16S gene copy numbers compared to the rest of the group. I have checked the raw values from the qPCR machine and they are correct. There are a few possibilities why the values are so high:
+\begin{itemize}
+\tightlist
+\item
+  The wells in the qPCR plate of 198 are close the standard, might be cross contaminated with standard (although the other replicates had the same proximity to the standard wells)
+\item
+  The DNA extract was cross-contaminated with another DNA extract with higher gene copy numbers
+\item
+  High heterogeneity of bacteria numbers in soil
+\item
+  Sampled from a larger rhizodeposition where bacteria thrive
+\end{itemize}
+For `{[}fert:no\textbar fung:no\textbar time:t3{]}' it is possibly enough to exclude 382 from the outlier list. For the repeated test 198, 259 and 382 are excluded.
+\begin{verbatim}
+# A tibble: 8 x 6
+  fert  fung  time  variable statistic     p
+  <fct> <fct> <fct> <chr>        <dbl> <dbl>
+1 no    no    t2    qty_ng       0.981 0.738
+2 no    no    t3    qty_ng       0.957 0.762
+3 no    yes   t2    qty_ng       0.890 0.355
+4 no    yes   t3    qty_ng       0.898 0.398
+5 yes   no    t2    qty_ng       0.933 0.616
+6 yes   no    t3    qty_ng       0.914 0.495
+7 yes   yes   t2    qty_ng       0.868 0.258
+8 yes   yes   t3    qty_ng       0.934 0.624
+\end{verbatim}
+\hypertarget{choosing-a-stastical-model-and-performing-anova}{%
+\subsection{Choosing a stastical model and performing ANOVA}\label{choosing-a-stastical-model-and-performing-anova}}
+
+An analysis of the dataset structure is needed to find the right statistical model. The data was generated in a randomized complete block design (RCBD).
+
+\hypertarget{model-parameters-1}{%
+\paragraph{Model parameters}\label{model-parameters-1}}
+
+\hypertarget{fixed-effects-1}{%
+\subparagraph{Fixed effects}\label{fixed-effects-1}}
+\begin{itemize}
+\tightlist
+\item
+  Fertilizer (fert) (Binary variable (yes/no))
+\item
+  Fungicide and growth (fung) (Binary variable (yes/no))
+\end{itemize}
+\hypertarget{random-effects-1}{%
+\subparagraph{Random effects}\label{random-effects-1}}
+\begin{itemize}
+\tightlist
+\item
+  Time
+\item
+  Block
+\item
+  (Row)
+\item
+  (Could possibly include rainfall 3-7 days before sampling)
+\end{itemize}
+\hypertarget{mixed-effect-model-1}{%
+\subsubsection{Mixed effect model}\label{mixed-effect-model-1}}
+
+The model needs to account for the above listed fixed and random effects. The regular lm() function of R stats package will fit all variables as fixed effects if they are integrated into the forumlae. Therefore we need the package nlme which can account for random effects. Because we are using only two timepoints I will stick to a linear model. Generally, I'd consider a non-linear model if all timepoints would be in the analysis. We are investigating gene copy numbers which are directly correlated and have a causal relation ship with number of bacteria. Bacteria growth is better estimated with a logistic regression.
+
+I'll do a stepwise modelling approach without the mathematic forumlae (will be done in the thesis tho).
+
+\hypertarget{all-main-effects-interaction-full-model-1}{%
+\paragraph{All main effects + Interaction (Full model)}\label{all-main-effects-interaction-full-model-1}}
+\begin{verbatim}
+Linear mixed-effects model fit by REML
+  Data: genecopy.work.filtered 
+      AIC      BIC    logLik
+  836.957 848.1666 -410.4785
+
+Random effects:
+ Formula: ~1 | block
+        (Intercept)
+StdDev:    30.62974
+
+ Formula: ~1 | time %in% block
+        (Intercept)
+StdDev:    37576.01
+
+ Formula: ~1 | row %in% time %in% block
+        (Intercept) Residual
+StdDev:    121044.1 147502.9
+
+Fixed effects:  qty_ng ~ fert + fung + fert * fung 
+                    Value Std.Error DF   t-value p-value
+(Intercept)      174709.5  70450.41 14  2.479894  0.0265
+fertyes          116325.3  86854.93 14  1.339305  0.2018
+fungyes          153301.8  83429.38 14  1.837504  0.0874
+fertyes:fungyes -125423.3 110614.30 14 -1.133880  0.2759
+ Correlation: 
+                (Intr) fertys fungys
+fertyes         -0.705              
+fungyes         -0.714  0.641       
+fertyes:fungyes  0.527 -0.746 -0.734
+
+Standardized Within-Group Residuals:
+       Min         Q1        Med         Q3        Max 
+-1.3618387 -0.5626442 -0.1996662  0.4797629  2.3432915 
+
+Number of Observations: 34
+Number of Groups: 
+                   block          time %in% block row %in% time %in% block 
+                       5                       10                       17 
+\end{verbatim}
+\hypertarget{reduced-model-both-main-effects}{%
+\paragraph{Reduced model (both main effects)}\label{reduced-model-both-main-effects}}
+\begin{verbatim}
+Linear mixed-effects model fit by REML
+  Data: genecopy.work.filtered 
+     AIC      BIC   logLik
+  860.97 869.5739 -424.485
+
+Random effects:
+ Formula: ~1 | block
+        (Intercept)
+StdDev:    21.16666
+
+ Formula: ~1 | time %in% block
+        (Intercept) Residual
+StdDev:    65455.94   178957
+
+Fixed effects:  qty_ng ~ fert + fung 
+                Value Std.Error DF   t-value p-value
+(Intercept) 186043.92  60829.47 22 3.0584503  0.0058
+fertyes      58646.49  62216.01 22 0.9426269  0.3561
+fungyes     121378.62  62297.52 22 1.9483700  0.0642
+ Correlation: 
+        (Intr) fertys
+fertyes -0.579       
+fungyes -0.607  0.125
+
+Standardized Within-Group Residuals:
+       Min         Q1        Med         Q3        Max 
+-1.2575833 -0.6203814 -0.2079221  0.4018496  3.0342711 
+
+Number of Observations: 34
+Number of Groups: 
+          block time %in% block 
+              5              10 
+\end{verbatim}
+\hypertarget{reduced-model-2-only-fung}{%
+\paragraph{Reduced model 2 (only fung)}\label{reduced-model-2-only-fung}}
+\begin{verbatim}
+Linear mixed-effects model fit by REML
+  Data: genecopy.work.filtered 
+       AIC      BIC    logLik
+  883.7451 891.0738 -436.8726
+
+Random effects:
+ Formula: ~1 | block
+        (Intercept)
+StdDev:    23.87227
+
+ Formula: ~1 | time %in% block
+        (Intercept) Residual
+StdDev:    74228.73 176172.7
+
+Fixed effects:  qty_ng ~ fung 
+               Value Std.Error DF  t-value p-value
+(Intercept) 220215.5  50243.92 23 4.382929  0.0002
+fungyes     112582.4  60916.43 23 1.848145  0.0775
+ Correlation: 
+        (Intr)
+fungyes -0.644
+
+Standardized Within-Group Residuals:
+        Min          Q1         Med          Q3         Max 
+-1.51351777 -0.63663387 -0.05071989  0.47593626  2.81534956 
+
+Number of Observations: 34
+Number of Groups: 
+          block time %in% block 
+              5              10 
+\end{verbatim}
+Fungicide + Growth thingy is borderline significant. May be worth to do post-hoc tests
+
+\hypertarget{climate-data}{%
+\chapter{Climate data}\label{climate-data}}
+
+Close to experimental Site (53°21'58.5``N\textbar13°48'13.3''E). Data extracted from wetterkontor.com from weather station in Grünow (53°19'01.7``N\textbar13°56'55.0''E)
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#Read data as tibble (tidyverse)}
+\NormalTok{  climate <-}\StringTok{ }
+\StringTok{    }\KeywordTok{read_delim}\NormalTok{(}\StringTok{"C:/Users/jjohn/OneDrive/MScthesis/data/clim.csv"}\NormalTok{,}\StringTok{";"}\NormalTok{,) }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{filter}\NormalTok{ (date }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{) }\CommentTok{#deletes empty days (artifact from data mining)}
+\end{Highlighting}
+\end{Shaded}
+\begin{verbatim}
+
+-- Column specification --------------------------------------------------------
+cols(
+  date = col_character(),
+  value = col_double(),
+  id = col_character(),
+  format = col_character()
+)
+\end{verbatim}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{  climate}\OperatorTok{$}\NormalTok{date <-}\StringTok{ }\KeywordTok{as.Date}\NormalTok{(climate}\OperatorTok{$}\NormalTok{date,}\StringTok{"%d.%m.%Y"}\NormalTok{) }\CommentTok{#formats the date correct }
+
+\CommentTok{#Summary statistics as we have day data, condense to month }
+\NormalTok{  summary <-}\StringTok{ }\NormalTok{climate }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{month =} \KeywordTok{format}\NormalTok{(date,}\StringTok{"%m"}\NormalTok{), }\DataTypeTok{year =} \KeywordTok{format}\NormalTok{ (date, }\StringTok{"%y"}\NormalTok{))}\OperatorTok{%>%}\StringTok{ }\CommentTok{#new month and year var}
+\StringTok{    }\KeywordTok{group_by}\NormalTok{(id, month, year)}\OperatorTok{%>%}\StringTok{                                    }\CommentTok{#group by new vars}
+\StringTok{    }\KeywordTok{summarise}\NormalTok{(}
+      \DataTypeTok{avg =} \KeywordTok{mean}\NormalTok{(value) }\CommentTok{#mean it }
+\NormalTok{    )}
+\end{Highlighting}
+\end{Shaded}
+\begin{verbatim}
+`summarise()` regrouping output by 'id', 'month' (override with `.groups` argument)
+\end{verbatim}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Plotting the weather data }
+
+\NormalTok{  summary}\OperatorTok{$}\NormalTok{id <-}\StringTok{ }
+\StringTok{    }\KeywordTok{as.factor}\NormalTok{(summary}\OperatorTok{$}\NormalTok{id)}
+\NormalTok{  summary}\OperatorTok{$}\NormalTok{time <-}\StringTok{ }
+\StringTok{    }\NormalTok{lubridate}\OperatorTok{::}\KeywordTok{ymd}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(summary}\OperatorTok{$}\NormalTok{year,summary}\OperatorTok{$}\NormalTok{month,}\StringTok{"01"}\NormalTok{))}\CommentTok{#reintroducing date format for ggplot2}
+
+\CommentTok{# consistent coloring scheme}
+\NormalTok{  my_color <-}\StringTok{ }\KeywordTok{c}\NormalTok{ (}\StringTok{"deepskyblue1"}\NormalTok{, }\StringTok{"goldenrod1"}\NormalTok{, }\StringTok{"black"}\NormalTok{, }\StringTok{"red"}\NormalTok{, }\StringTok{"dodgerblue4"}\NormalTok{) }
+  \KeywordTok{names}\NormalTok{(my_color) <-}\StringTok{ }\KeywordTok{levels}\NormalTok{(summary}\OperatorTok{$}\NormalTok{id)}
+\NormalTok{  my_scale <-}\StringTok{ }\KeywordTok{scale_color_manual}\NormalTok{(}\DataTypeTok{name =} \StringTok{"Legend"}\NormalTok{, }
+                                 \DataTypeTok{values =}\NormalTok{ my_color,}
+                                 \DataTypeTok{breaks=}\KeywordTok{c}\NormalTok{(}\StringTok{"temp_max"}\NormalTok{,}\StringTok{"temp_avg"}\NormalTok{, }\StringTok{"temp_min"}\NormalTok{),}
+                                 \DataTypeTok{labels=}\KeywordTok{c}\NormalTok{(}\StringTok{"Maximum"}\NormalTok{, }\StringTok{"Average"}\NormalTok{, }\StringTok{"Minimum"}\NormalTok{))  }
+  
+\CommentTok{# filtering data for separate plots}
+  
+\NormalTok{  temp <-}\StringTok{ }\KeywordTok{filter}\NormalTok{(summary, id }\OperatorTok{==}\StringTok{"temp_max"} \OperatorTok{|}\NormalTok{id }\OperatorTok{==}\StringTok{"temp_min"} \OperatorTok{|}\StringTok{ }\NormalTok{id}\OperatorTok{==}\StringTok{"temp_avg"}\NormalTok{) }
+\NormalTok{  sun <-}\StringTok{ }\KeywordTok{filter}\NormalTok{(summary,id }\OperatorTok{==}\StringTok{"sunshine"}\NormalTok{)}
+\NormalTok{  rain<-}\StringTok{ }\KeywordTok{filter}\NormalTok{(summary,id}\OperatorTok{==}\StringTok{"rainfall"}\NormalTok{)}
+  
+
+\CommentTok{# ggplot area}
+  \CommentTok{#temperature}
+\NormalTok{  temp}\OperatorTok{$}\NormalTok{title <-}\StringTok{ "Temperature"}
+\NormalTok{  a <-}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(temp, }\KeywordTok{aes}\NormalTok{(time,avg,}\DataTypeTok{color=}\NormalTok{id)) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{geom_line}\NormalTok{() }\OperatorTok{+}
+\StringTok{    }\KeywordTok{ylab}\NormalTok{(}\StringTok{"°C"}\NormalTok{)}\OperatorTok{+}
+\StringTok{    }\KeywordTok{xlab}\NormalTok{(}\StringTok{"2019-2020"}\NormalTok{)}\OperatorTok{+}
+\StringTok{    }\KeywordTok{facet_grid}\NormalTok{(}\OperatorTok{~}\NormalTok{title)}\OperatorTok{+}
+\StringTok{    }\OtherTok{NULL} 
+\NormalTok{  plot_temp <-}\StringTok{ }\NormalTok{a }\OperatorTok{+}\StringTok{ }\NormalTok{my_scale}
+  
+  \CommentTok{#rainfall, sunshine}
+\NormalTok{  rain}\OperatorTok{$}\NormalTok{title <-}\StringTok{ "Rainfall"} 
+\NormalTok{  b <-}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(rain, }\KeywordTok{aes}\NormalTok{(time,avg, }\DataTypeTok{color=}\NormalTok{id)) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{geom_line}\NormalTok{() }\OperatorTok{+}
+\StringTok{    }\KeywordTok{ylab}\NormalTok{(}\KeywordTok{expression}\NormalTok{(}\KeywordTok{paste}\NormalTok{(}\StringTok{"L/m"}\OperatorTok{^}\StringTok{"2"}\NormalTok{)))}\OperatorTok{+}
+\StringTok{    }\KeywordTok{xlab}\NormalTok{(}\StringTok{"2019-2020"}\NormalTok{)}\OperatorTok{+}
+\StringTok{    }\KeywordTok{facet_grid}\NormalTok{(}\OperatorTok{~}\NormalTok{title)}\OperatorTok{+}
+\StringTok{    }\OtherTok{NULL} 
+\NormalTok{  plot_rain <-}\StringTok{ }\NormalTok{b }\OperatorTok{+}\StringTok{ }\NormalTok{my_scale}
+
+\NormalTok{  sun}\OperatorTok{$}\NormalTok{title <-}\StringTok{ "Sunshine"}
+\NormalTok{  c <-}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(sun, }\KeywordTok{aes}\NormalTok{(time,avg,}\DataTypeTok{color=}\NormalTok{id)) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{geom_line}\NormalTok{() }\OperatorTok{+}
+\StringTok{    }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Hours"}\NormalTok{)}\OperatorTok{+}
+\StringTok{    }\KeywordTok{xlab}\NormalTok{(}\StringTok{"2019-2020"}\NormalTok{)}\OperatorTok{+}
+\StringTok{    }\KeywordTok{facet_grid}\NormalTok{(}\OperatorTok{~}\NormalTok{title)}\OperatorTok{+}
+\StringTok{    }\OtherTok{NULL}
+\NormalTok{  plot_sun <-}\StringTok{ }\NormalTok{c }\OperatorTok{+}\StringTok{ }\NormalTok{my_scale}
+    
+
+\CommentTok{#cowplot to arrange }
+  \CommentTok{#Plotting two plots together}
+\NormalTok{  plot_other<-}\StringTok{ }\KeywordTok{plot_grid}\NormalTok{(plot_rain }\OperatorTok{+}\StringTok{ }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position=}\StringTok{"none"}\NormalTok{),}
+\NormalTok{                         plot_sun }\OperatorTok{+}\StringTok{ }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position=}\StringTok{"none"}\NormalTok{)}
+\NormalTok{                         ,}\DataTypeTok{labels =} \KeywordTok{c}\NormalTok{(}\StringTok{'B'}\NormalTok{, }\StringTok{'C'}\NormalTok{))}
+  \CommentTok{# so they can be in one row }
+\NormalTok{  prow <-}\StringTok{ }\KeywordTok{plot_grid}\NormalTok{(plot_temp,}
+\NormalTok{            plot_other,}
+            \DataTypeTok{labels =} \KeywordTok{c}\NormalTok{(}\StringTok{'A'}\NormalTok{, }\StringTok{''}\NormalTok{),}
+            \DataTypeTok{ncol =} \DecValTok{1}\NormalTok{, }\DataTypeTok{nrow =} \DecValTok{2}\NormalTok{)}
+\NormalTok{  prow}
+\end{Highlighting}
+\end{Shaded}
+\includegraphics{thesis2_files/figure-latex/Climate Data-1.pdf}
+\begin{verbatim}
+
+-- Column specification --------------------------------------------------------
+cols(
+  number = col_character(),
+  value = col_character(),
+  id = col_character(),
+  unit = col_character(),
+  type = col_character(),
+  filename = col_character(),
+  crop = col_character(),
+  treatment = col_character(),
+  timepoint = col_character()
+)
+\end{verbatim}
+\begin{verbatim}
+`summarise()` regrouping output by 'type', 'timepoint', 'id' (override with `.groups` argument)
+\end{verbatim}
+\includegraphics{thesis2_files/figure-latex/Chemical Analysis-1.pdf} \includegraphics{thesis2_files/figure-latex/Chemical Analysis-2.pdf} \includegraphics{thesis2_files/figure-latex/Chemical Analysis-3.pdf} \includegraphics{thesis2_files/figure-latex/Chemical Analysis-4.pdf}
 
 \hypertarget{math}{%
 \section{Math}\label{math}}
@@ -750,7 +1553,7 @@ This document was typeset using the XeTeX typesetting system, and the \href{http
 
 The source files for this thesis, along with all the data files, have been organised into an R package, xxx, which is available at \url{https://github.com/xxx/xxx}. A hard copy of the thesis can be found in the University of Washington library.
 
-This version of the thesis was generated on 2021-01-07 09:40:13. The repository is currently at this commit:
+This version of the thesis was generated on 2021-01-07 12:00:53. The repository is currently at this commit:
 
 The computational environment that was used to generate this version is as follows:
 \begin{verbatim}
@@ -768,12 +1571,24 @@ The computational environment that was used to generate this version is as follo
 
 - Packages -------------------------------------------------------------------
  package     * version date       lib source                               
+ abind         1.4-5   2016-07-21 [1] CRAN (R 4.0.3)                       
  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.0.3)                       
+ backports     1.2.0   2020-11-02 [1] CRAN (R 4.0.3)                       
  bookdown      0.21    2020-10-13 [1] CRAN (R 4.0.3)                       
+ boot          1.3-25  2020-04-26 [2] CRAN (R 4.0.3)                       
+ broom         0.7.3   2020-12-16 [1] CRAN (R 4.0.3)                       
  callr         3.5.1   2020-10-13 [1] CRAN (R 4.0.3)                       
+ car           3.0-10  2020-09-29 [1] CRAN (R 4.0.3)                       
+ carData       3.0-4   2020-05-22 [1] CRAN (R 4.0.3)                       
+ cellranger    1.1.0   2016-07-27 [1] CRAN (R 4.0.3)                       
  cli           2.2.0   2020-11-20 [1] CRAN (R 4.0.3)                       
  colorspace    2.0-0   2020-11-11 [1] CRAN (R 4.0.3)                       
+ cowplot     * 1.1.1   2020-12-30 [1] CRAN (R 4.0.3)                       
  crayon        1.3.4   2017-09-16 [1] CRAN (R 4.0.3)                       
+ curl          4.3     2019-12-02 [1] CRAN (R 4.0.3)                       
+ data.table    1.13.4  2020-12-08 [1] CRAN (R 4.0.3)                       
+ DBI           1.1.0   2019-12-15 [1] CRAN (R 4.0.3)                       
+ dbplyr        2.0.0   2020-11-03 [1] CRAN (R 4.0.3)                       
  desc          1.2.0   2018-05-01 [1] CRAN (R 4.0.3)                       
  devtools    * 2.3.2   2020-09-18 [1] CRAN (R 4.0.3)                       
  digest        0.6.27  2020-10-24 [1] CRAN (R 4.0.3)                       
@@ -782,47 +1597,81 @@ The computational environment that was used to generate this version is as follo
  evaluate      0.14    2019-05-28 [1] CRAN (R 4.0.3)                       
  fansi         0.4.1   2020-01-08 [1] CRAN (R 4.0.3)                       
  farver        2.0.3   2020-01-16 [1] CRAN (R 4.0.3)                       
+ forcats     * 0.5.0   2020-03-01 [1] CRAN (R 4.0.3)                       
+ foreign       0.8-81  2020-12-22 [2] CRAN (R 4.0.3)                       
  fs            1.5.0   2020-07-31 [1] CRAN (R 4.0.3)                       
  gauchodown  * 1.0     2021-01-07 [1] Github (danovando/gauchodown@d9a19b8)
  generics      0.1.0   2020-10-31 [1] CRAN (R 4.0.3)                       
  ggplot2     * 3.3.3   2020-12-30 [1] CRAN (R 4.0.3)                       
+ ggpubr      * 0.4.0   2020-06-27 [1] CRAN (R 4.0.3)                       
+ ggsci         2.9     2018-05-14 [1] CRAN (R 4.0.3)                       
+ ggsignif      0.6.0   2019-08-08 [1] CRAN (R 4.0.3)                       
  git2r         0.27.1  2020-05-03 [1] CRAN (R 4.0.3)                       
  glue          1.4.2   2020-08-27 [1] CRAN (R 4.0.3)                       
  gtable        0.3.0   2019-03-25 [1] CRAN (R 4.0.3)                       
+ haven         2.3.1   2020-06-01 [1] CRAN (R 4.0.3)                       
  highr         0.8     2019-03-20 [1] CRAN (R 4.0.3)                       
+ hms           0.5.3   2020-01-08 [1] CRAN (R 4.0.3)                       
  htmltools     0.5.0   2020-06-16 [1] CRAN (R 4.0.3)                       
+ httr          1.4.2   2020-07-20 [1] CRAN (R 4.0.3)                       
+ jsonlite      1.7.2   2020-12-09 [1] CRAN (R 4.0.3)                       
  knitr       * 1.30    2020-09-22 [1] CRAN (R 4.0.3)                       
  labeling      0.4.2   2020-10-20 [1] CRAN (R 4.0.3)                       
+ lattice       0.20-41 2020-04-02 [2] CRAN (R 4.0.3)                       
  lifecycle     0.2.0   2020-03-06 [1] CRAN (R 4.0.3)                       
+ lme4        * 1.1-26  2020-12-01 [1] CRAN (R 4.0.3)                       
+ lubridate     1.7.9.2 2020-11-13 [1] CRAN (R 4.0.3)                       
  magrittr      2.0.1   2020-11-17 [1] CRAN (R 4.0.3)                       
+ MASS          7.3-53  2020-09-09 [2] CRAN (R 4.0.3)                       
+ Matrix      * 1.2-18  2019-11-27 [2] CRAN (R 4.0.3)                       
  memoise       1.1.0   2017-04-21 [1] CRAN (R 4.0.3)                       
+ minqa         1.2.4   2014-10-09 [1] CRAN (R 4.0.3)                       
+ modelr        0.1.8   2020-05-19 [1] CRAN (R 4.0.3)                       
  munsell       0.5.0   2018-06-12 [1] CRAN (R 4.0.3)                       
+ nlme        * 3.1-151 2020-12-10 [2] CRAN (R 4.0.3)                       
+ nloptr        1.2.2.2 2020-07-02 [1] CRAN (R 4.0.3)                       
+ openxlsx      4.2.3   2020-10-27 [1] CRAN (R 4.0.3)                       
  pillar        1.4.7   2020-11-20 [1] CRAN (R 4.0.3)                       
  pkgbuild      1.2.0   2020-12-15 [1] CRAN (R 4.0.3)                       
  pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.0.3)                       
  pkgload       1.1.0   2020-05-29 [1] CRAN (R 4.0.3)                       
+ plyr          1.8.6   2020-03-03 [1] CRAN (R 4.0.3)                       
  prettyunits   1.1.1   2020-01-24 [1] CRAN (R 4.0.3)                       
  processx      3.4.5   2020-11-30 [1] CRAN (R 4.0.3)                       
  ps            1.5.0   2020-12-05 [1] CRAN (R 4.0.3)                       
- purrr         0.3.4   2020-04-17 [1] CRAN (R 4.0.3)                       
+ purrr       * 0.3.4   2020-04-17 [1] CRAN (R 4.0.3)                       
  R6            2.5.0   2020-10-28 [1] CRAN (R 4.0.3)                       
+ Rcpp          1.0.5   2020-07-06 [1] CRAN (R 4.0.3)                       
+ readr       * 1.4.0   2020-10-05 [1] CRAN (R 4.0.3)                       
+ readxl        1.3.1   2019-03-13 [1] CRAN (R 4.0.3)                       
  remotes       2.2.0   2020-07-21 [1] CRAN (R 4.0.3)                       
+ reprex        0.3.0   2019-05-16 [1] CRAN (R 4.0.3)                       
+ reshape2    * 1.4.4   2020-04-09 [1] CRAN (R 4.0.3)                       
+ rio           0.5.16  2018-11-26 [1] CRAN (R 4.0.3)                       
  rlang         0.4.10  2020-12-30 [1] CRAN (R 4.0.3)                       
  rmarkdown     2.6     2020-12-14 [1] CRAN (R 4.0.3)                       
  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.0.3)                       
+ rstatix     * 0.6.0   2020-06-18 [1] CRAN (R 4.0.3)                       
  rstudioapi    0.13    2020-11-12 [1] CRAN (R 4.0.3)                       
+ rvest         0.3.6   2020-07-25 [1] CRAN (R 4.0.3)                       
  scales        1.1.1   2020-05-11 [1] CRAN (R 4.0.3)                       
  sessioninfo   1.1.1   2018-11-05 [1] CRAN (R 4.0.3)                       
+ statmod       1.4.35  2020-10-19 [1] CRAN (R 4.0.3)                       
  stringi       1.5.3   2020-09-09 [1] CRAN (R 4.0.3)                       
- stringr       1.4.0   2019-02-10 [1] CRAN (R 4.0.3)                       
+ stringr     * 1.4.0   2019-02-10 [1] CRAN (R 4.0.3)                       
  testthat      3.0.1   2020-12-17 [1] CRAN (R 4.0.3)                       
- tibble        3.0.4   2020-10-12 [1] CRAN (R 4.0.3)                       
+ tibble      * 3.0.4   2020-10-12 [1] CRAN (R 4.0.3)                       
+ tidyr       * 1.1.2   2020-08-27 [1] CRAN (R 4.0.3)                       
  tidyselect    1.1.0   2020-05-11 [1] CRAN (R 4.0.3)                       
+ tidyverse   * 1.3.0   2019-11-21 [1] CRAN (R 4.0.3)                       
  usethis     * 2.0.0   2020-12-10 [1] CRAN (R 4.0.3)                       
+ utf8          1.1.4   2018-05-24 [1] CRAN (R 4.0.3)                       
  vctrs         0.3.6   2020-12-17 [1] CRAN (R 4.0.3)                       
  withr         2.3.0   2020-09-22 [1] CRAN (R 4.0.3)                       
  xfun          0.19    2020-10-30 [1] CRAN (R 4.0.3)                       
+ xml2          1.3.2   2020-04-23 [1] CRAN (R 4.0.3)                       
  yaml          2.2.1   2020-02-01 [1] CRAN (R 4.0.3)                       
+ zip           2.1.1   2020-08-27 [1] CRAN (R 4.0.3)                       
 
 [1] D:/rlib
 [2] D:/R/R-4.0.3/library
