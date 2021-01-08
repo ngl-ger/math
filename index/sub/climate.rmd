@@ -9,122 +9,84 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r Chemical Analysis, echo=FALSE}
+```{r Climate Data}
+#Read data as tibble (tidyverse)
+  climate <- 
+    read_delim("C:/Users/jjohn/OneDrive/MScthesis/data/clim.csv",";",) %>%
+    filter (date != 0) #deletes empty days (artifact from data mining)
+  
+  climate$date <- as.Date(climate$date,"%d.%m.%Y") #formats the date correct 
 
-# Read data as tibble (tidyverse)
-
-  chem <- 
-      read_delim("C:/Users/jjohn/OneDrive/MScthesis/data/chemanalysis.csv",",",) %>%
-      filter (crop == "W") #only need W for my thesis
-
-# Correct Variable types here 
-
-  chem$value <- as.numeric(chem$value)
-  chem$id    <- as.factor(chem$id)
-
-#Summary statistics 
-
-  summary <- chem %>%
-    group_by(type, timepoint, id, treatment)%>%                     
+#Summary statistics as we have day data, condense to month 
+  summary <- climate %>%
+    mutate(month = format(date,"%m"), year = format (date, "%y"))%>% #new month and year var
+    group_by(id, month, year)%>%                                    #group by new vars
     summarise(
-      n = n(),
-      avg = mean(value),
-      sd = sd(value),
-      med = median(value),
-      min = min(value),
-      max = max(value),
+      avg = mean(value) #mean it 
     )
 
+# Plotting the weather data 
+
+  summary$id <- 
+    as.factor(summary$id)
+  summary$time <- 
+    lubridate::ymd(paste0(summary$year,summary$month,"01"))#reintroducing date format for ggplot2
+
+# consistent coloring scheme
+  my_color <- c ("deepskyblue1", "goldenrod1", "black", "red", "dodgerblue4") 
+  names(my_color) <- levels(summary$id)
+  my_scale <- scale_color_manual(name = "Legend", 
+                                 values = my_color,
+                                 breaks=c("temp_max","temp_avg", "temp_min"),
+                                 labels=c("Maximum", "Average", "Minimum"))  
   
-#ggplot2 area
+# filtering data for separate plots
   
-  # General facet labels for better understanding (Abbreviation index)
+  temp <- filter(summary, id =="temp_max" |id =="temp_min" | id=="temp_avg") 
+  sun <- filter(summary,id =="sunshine")
+  rain<- filter(summary,id=="rainfall")
   
-   labs <- c(
-     c_t= "Total Carbon",
-     n_t="Total Nitrogen",
-     nit = "Nitrate",
-     amo = "Ammonium",
-     ph = "pH"
-            )
-   
-  # Plant-available nitrogen
+
+# ggplot area
+  #temperature
+  temp$title <- "Temperature"
+  a <- ggplot(temp, aes(time,avg,color=id)) +
+    geom_line() +
+    ylab("°C")+
+    xlab("2019-2020")+
+    facet_grid(~title)+
+    NULL 
+  plot_temp <- a + my_scale
   
-  reduced <- filter(summary, id == "amo" | id == "nit")
-  
-  plot.nitamo <- ggplot(reduced,aes(treatment,avg,fill=treatment))+
-    geom_bar(stat="identity", 
-             position=position_dodge()
-             )+
-    geom_errorbar(aes(ymin=avg-sd, ymax=avg+sd), width=.2,
-                 position=position_dodge(.9))+
-   
+  #rainfall, sunshine
+  rain$title <- "Rainfall" 
+  b <- ggplot(rain, aes(time,avg, color=id)) +
+    geom_line() +
+    ylab(expression(paste("L/m"^"2")))+
+    xlab("2019-2020")+
+    facet_grid(~title)+
+    NULL 
+  plot_rain <- b + my_scale
+
+  sun$title <- "Sunshine"
+  c <- ggplot(sun, aes(time,avg,color=id)) +
+    geom_line() +
+    ylab("Hours")+
+    xlab("2019-2020")+
+    facet_grid(~title)+
     NULL
-  plot.nitamo+
-    facet_grid(timepoint~id,
-               scales="free",
-               labeller = labeller(id = labs)
-               )+
-    ylab(expression(paste("[mg] in 100g wet soil")))+
-    labs(title="Concentration of mineralized nitrogen in wet soil")
-  
-  # C_t, n_t soil
-  
-  reduced <- filter(summary, type =="soil", id == "c_t" | id == "n_t")
-  
-  plot.ctnt <- ggplot(reduced,aes(treatment,avg,fill=treatment))+
-    geom_bar(stat="identity", 
-             position=position_dodge()
-             )+
-    geom_errorbar(aes(ymin=avg-sd, ymax=avg+sd), width=.2,
-                 position=position_dodge(.9))+
-    NULL
-  
-  plot.ctnt + 
-    facet_wrap(~id,
-               scales="free",
-               labeller = labeller(id = labs)
-               ) +
-    ylab("[% of dried soil sample]")+
-    labs("Concentration of carbon and nitrogen in dried soil")
-  
-  # C_t, n_t root
-  
-  reduced <- filter(summary, type =="root", id == "c_t" | id == "n_t")
-  
-  plot.ctnt.rt <- ggplot(reduced,aes(treatment,avg,fill=treatment))+
-    geom_bar(stat="identity", 
-             position=position_dodge()
-             )+
-    geom_errorbar(aes(ymin=avg-sd, ymax=avg+sd), width=.2,
-                 position=position_dodge(.9))+
-    NULL
-  
-  plot.ctnt.rt + 
-    facet_wrap(timepoint~id,
-               scales="free",
-               labeller = labeller(id = labs)
-               ) +
-    ylab("[% of dried root sample]")+
-    labs(title = "Total carbon and nitrogen content in dried roots")
-  
-  # pH
-  # I added a title here to get the facet_wrap title 
-  
-  reduced <- filter(summary, id == "ph")
-  reduced$title <- "pH"
-  
-  plot.ph <- ggplot(reduced,aes(treatment,avg,fill=treatment))+
-    geom_bar(stat="identity", 
-             position=position_dodge()
-             )+
-    geom_errorbar(aes(ymin=avg-sd, ymax=avg+sd), width=.2,
-                 position=position_dodge(.9))+
-    facet_wrap(~title)+
-    NULL
-  
-  plot.ph+
-    ylab(expression("-log [H"^"+"*"]"))+
-    labs(title = "Total carbon and nitrogen content in dried roots")
-  
+  plot_sun <- c + my_scale
+    
+
+#cowplot to arrange 
+  #Plotting two plots together
+  plot_other<- plot_grid(plot_rain + theme(legend.position="none"),
+                         plot_sun + theme(legend.position="none")
+                         ,labels = c('B', 'C'))
+  # so they can be in one row 
+  prow <- plot_grid(plot_temp,
+            plot_other,
+            labels = c('A', ''),
+            ncol = 1, nrow = 2)
+  prow
 ```
