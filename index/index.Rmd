@@ -52,6 +52,11 @@ If you'd like to include a comment that won't be produced in your resulting file
 <!--
 If you receive a duplicate label error after knitting, make sure to delete the index.Rmd file and then knit again.
 -->
+```{r setup, include=FALSE, echo=FALSE}
+require("knitr")
+opts_knit$set(root.dir = "C:/Users/jjohn/OneDrive/MScthesis/math/index")
+```
+
 
 ```{r include_packages, include = FALSE}
 # This chunk ensures that the gauchodown package is
@@ -63,5 +68,7 @@ if(!require(gauchodown))
   devtools::install_github("danovando/gauchodown")
 library(gauchodown)
 ```
+
+
 
 
