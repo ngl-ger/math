@@ -1,0 +1,133 @@
+---
+title: "16ss"
+author: "Joshua Johnson"
+date: "1/7/2021"
+output: html_document
+---
+
+<!-- Packages -->
+
+```{r Packages, echo=FALSE, results='hide', warning=FALSE, message = FALSE}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(cowplot)
+library(reshape2)
+library(rstatix)
+library(ggpubr)
+library(nlme)
+library(lme4)
+library(kableExtra)
+```
+
+<!-- Data load -->
+```{r 16s qPCR load, echo=FALSE, results='hide', warning=FALSE, message = FALSE}
+# Loading bay
+qpcr <- 
+      read_delim("C:/Users/jjohn/OneDrive/MScthesis/data/16s.csv",",",) #gene copy numbers from qpcr instrument
+    dna <- 
+      read_delim("C:/Users/jjohn/OneDrive/MScthesis/data/dna.csv",",",) # dna concentration of samples
+    trt <-
+      read_delim("C:/Users/jjohn/OneDrive/MScthesis/data/treatment_factors.csv",",",) #treatment index
+# Variable type changes 
+    qpcr$id <- as.factor(qpcr$id)
+    dna$id <- as.factor(dna$id)
+    trt$time[trt$time == "t2"] <- "0"
+    trt$time[trt$time == "t3"] <- "1"
+    #trt <- trt %>%
+      #convert_as_factor(id,fert,fung,block,time,row,treatment,subject) # easier when more than one needs to change
+trt$id <- as.factor(trt$id)
+    
+```    
+    
+<!-- Data mangling -->
+```{r Averaging technical replicates/ Resetting dilutions , echo=FALSE, warning=FALSE, message = FALSE}
+# Summary statistics
+  summary <- qpcr %>%
+    group_by(type, id)%>%                                    
+    summarise(
+      n=n(),
+      avg.qty = mean(qty, na.rm=TRUE),
+      sd.qty=sd(qty, na.rm = TRUE) 
+    )%>% 
+    ungroup()
+ rm(qpcr)
+ 
+# Join DNA conc. and summary qty for later calculations  
+ joined <- summary %>% 
+   inner_join(dna, by = c("id" = "id", "type" = "type"))%>% 
+   rename(dna_conc= value)
+ rm(summary)
+ rm(dna)
+ 
+#Normalize quantity values
+  # Reset dilution
+  # Normalize on 1 ul (8 ul template used in one well)
+  # Normalize on 1 ng DNA (divide by DNA conc. per ng)
+  # Index created: averaged quantity value (from technical replicates) for each replicate
+ 
+   calc <- joined %>%
+     mutate(qty_undil=avg.qty*400)%>% 
+     mutate(qty_ul=qty_undil/8)%>% 
+     mutate(qty_ng=qty_ul/dna_conc)
+   
+  # index <- calc  %>% 
+    #inner_join(trt, by = c("id" = "id"))%>%
+   # arrange(type, treatment)
+ # rm(joined)
+   
+  # From calc we extract the calculated values into a new tibble and remove calc 
+    # There are other columns in calc which contain unwanted information, hence the new tibble
+    # You could also set the unwanted columns to NULL and work further with calc 
+   fin <- calc %>% 
+     select(type,id, qty_ng) %>% 
+     mutate(unit = "GeneCopies/ngDNA")
+  rm(calc)
+  
+  # Add descriptors (another table) for treatment factors
+  
+  genecopy <- fin %>% 
+   inner_join(trt, by = c("id" = "id"))
+  
+  rm(trt)
+  rm(fin)
+  
+# Finished, we now have a tibble called 'genecopy' which includes the gene copy numbers per ng DNA
+  # Index is a copy of all average qty values (avg of technical replicates) for each replicate and is normalized on ng DNA
+```
+
+<!-- Summary Statistics -->
+
+```{r}
+ summary <- genecopy %>%
+  group_by(type,time,fert,fung) %>%
+  get_summary_stats(qty_ng, type = "mean_sd")%>%
+  select(type, time, fert, fung, mean, sd)
+
+genecopy$treatment[genecopy$treatment == "H00"] <- "Control"
+genecopy$treatment[genecopy$treatment == "H01"] <- "Fert"
+genecopy$treatment[genecopy$treatment == "HP0"] <- "Fung + GroRe"
+genecopy$treatment[genecopy$treatment == "HP1"] <- "Full"
+
+wrk <- genecopy %>%
+  filter(type == "soil")
+```
+
+
+```{r dabestr test}
+library(dabestr)
+multi.two.group.paired <- 
+  wrk %>%
+  dabest(treatment, qty_ng, 
+         idx = c("Control", "Fert", "Fung + GroRe", "Full"),
+         paired = TRUE, id.column = time)
+
+
+# The summary indicates this is a paired comparison. 
+multi.two.group.paired.mean_diff <- mean_diff(multi.two.group.paired)
+
+
+plot(multi.two.group.paired.mean_diff, 
+     rawplot.type = "swarmplot")
+```
+
