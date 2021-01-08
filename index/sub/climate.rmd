@@ -1,0 +1,130 @@
+---
+title: "climatedata"
+author: "Joshua Johnson"
+date: "1/8/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Chemical Analysis, echo=FALSE}
+
+# Read data as tibble (tidyverse)
+
+  chem <- 
+      read_delim("C:/Users/jjohn/OneDrive/MScthesis/data/chemanalysis.csv",",",) %>%
+      filter (crop == "W") #only need W for my thesis
+
+# Correct Variable types here 
+
+  chem$value <- as.numeric(chem$value)
+  chem$id    <- as.factor(chem$id)
+
+#Summary statistics 
+
+  summary <- chem %>%
+    group_by(type, timepoint, id, treatment)%>%                     
+    summarise(
+      n = n(),
+      avg = mean(value),
+      sd = sd(value),
+      med = median(value),
+      min = min(value),
+      max = max(value),
+    )
+
+  
+#ggplot2 area
+  
+  # General facet labels for better understanding (Abbreviation index)
+  
+   labs <- c(
+     c_t= "Total Carbon",
+     n_t="Total Nitrogen",
+     nit = "Nitrate",
+     amo = "Ammonium",
+     ph = "pH"
+            )
+   
+  # Plant-available nitrogen
+  
+  reduced <- filter(summary, id == "amo" | id == "nit")
+  
+  plot.nitamo <- ggplot(reduced,aes(treatment,avg,fill=treatment))+
+    geom_bar(stat="identity", 
+             position=position_dodge()
+             )+
+    geom_errorbar(aes(ymin=avg-sd, ymax=avg+sd), width=.2,
+                 position=position_dodge(.9))+
+   
+    NULL
+  plot.nitamo+
+    facet_grid(timepoint~id,
+               scales="free",
+               labeller = labeller(id = labs)
+               )+
+    ylab(expression(paste("[mg] in 100g wet soil")))+
+    labs(title="Concentration of mineralized nitrogen in wet soil")
+  
+  # C_t, n_t soil
+  
+  reduced <- filter(summary, type =="soil", id == "c_t" | id == "n_t")
+  
+  plot.ctnt <- ggplot(reduced,aes(treatment,avg,fill=treatment))+
+    geom_bar(stat="identity", 
+             position=position_dodge()
+             )+
+    geom_errorbar(aes(ymin=avg-sd, ymax=avg+sd), width=.2,
+                 position=position_dodge(.9))+
+    NULL
+  
+  plot.ctnt + 
+    facet_wrap(~id,
+               scales="free",
+               labeller = labeller(id = labs)
+               ) +
+    ylab("[% of dried soil sample]")+
+    labs("Concentration of carbon and nitrogen in dried soil")
+  
+  # C_t, n_t root
+  
+  reduced <- filter(summary, type =="root", id == "c_t" | id == "n_t")
+  
+  plot.ctnt.rt <- ggplot(reduced,aes(treatment,avg,fill=treatment))+
+    geom_bar(stat="identity", 
+             position=position_dodge()
+             )+
+    geom_errorbar(aes(ymin=avg-sd, ymax=avg+sd), width=.2,
+                 position=position_dodge(.9))+
+    NULL
+  
+  plot.ctnt.rt + 
+    facet_wrap(timepoint~id,
+               scales="free",
+               labeller = labeller(id = labs)
+               ) +
+    ylab("[% of dried root sample]")+
+    labs(title = "Total carbon and nitrogen content in dried roots")
+  
+  # pH
+  # I added a title here to get the facet_wrap title 
+  
+  reduced <- filter(summary, id == "ph")
+  reduced$title <- "pH"
+  
+  plot.ph <- ggplot(reduced,aes(treatment,avg,fill=treatment))+
+    geom_bar(stat="identity", 
+             position=position_dodge()
+             )+
+    geom_errorbar(aes(ymin=avg-sd, ymax=avg+sd), width=.2,
+                 position=position_dodge(.9))+
+    facet_wrap(~title)+
+    NULL
+  
+  plot.ph+
+    ylab(expression("-log [H"^"+"*"]"))+
+    labs(title = "Total carbon and nitrogen content in dried roots")
+  
+```
