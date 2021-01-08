@@ -1,4 +1,7 @@
-# Mathematics and Science {#math-sci}
+# Results {#math-sci}
+```{r 16s, echo=FALSE, error=FALSE,message=FALSE,results='asis'}
+cat(knitr::knit_child("/sub/16s.rmd", quiet=TRUE))
+```
 
 <!-- Required to number equations in HTML files -->
 <script type="text/x-mathjax-config">
@@ -8,6 +11,8 @@ MathJax.Hub.Config({
 </script>
 
 ## Math
+
+
 
 \TeX\ is the best way to typeset mathematics. Donald Knuth designed \TeX\ when he got frustrated at how long it was taking the typesetters to finish his book, which contained a lot of mathematics.  One nice feature of _R Markdown_ is its ability to read LaTeX code directly.
 
